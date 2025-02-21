@@ -1,0 +1,60 @@
+/***** Always True *****/
+@media only screen {
+    .react-flow__pane {
+        cursor: default !important;
+    }
+
+    .react-flow__minimap {
+        border: 1px solid var(--bg-secondary);
+        border-radius: var(--btn-border-radius);
+    }
+
+    .react-flow__minimap-svg {
+        border-radius: var(--btn-border-radius);
+    }
+
+    .react-flow__minimap-mask {
+        fill: var(--xy-minimap-background-color-default);
+    }
+
+    .react-flow__controls-button {
+        margin: 5px;
+        border-radius: 0;
+        border-bottom: none;
+        background: transparent;
+    }
+
+    .react-flow__controls-button:hover {
+        background: var(--bg-primary);
+    }
+
+    .react-flow__controls {
+        height: 150px;
+        box-shadow: none;
+        border: 1px solid var(--bg-secondary);
+        border-radius: var(--btn-border-radius);
+        background-color: var(--xy-minimap-background-color-default);
+    }
+
+    .validationflow .react-flow__handle {
+        z-index: 1;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--font-color-primary);
+    }
+
+    .validationflow .react-flow__handle.connectingto {
+        background-color: var(--error);
+    }
+    
+    .validationflow .react-flow__handle.valid {
+        background-color: var(--success);
+    }
+
+    .react-flow__handle-right {
+        transform: translate(50%, 50%);
+    }
+
+    .react-flow__handle-left {
+        transform: translate(-50%, 50%);
+    }
+}

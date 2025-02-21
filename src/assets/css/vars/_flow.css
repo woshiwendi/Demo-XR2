@@ -1,0 +1,4 @@
+.react-flow {
+    --xy-minimap-background-color-default: var(--bg-primary);
+    --xy-minimap-node-background-color-props: var(--bg-secondary);
+}

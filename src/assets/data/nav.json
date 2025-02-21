@@ -1,0 +1,19 @@
+{
+    "home": [
+    ],
+
+    "playground": [
+        {
+            "href": "",
+            "id": "txt2Mesh",
+            "title": "Text to Mesh",
+            "icon": "fa-fas fa-file"
+        },
+        {
+            "href": "",
+            "id": "img2Mesh",
+            "title": "Image to Mesh",
+            "icon": "fa-fas fa-file-image"
+        }
+    ]
+}

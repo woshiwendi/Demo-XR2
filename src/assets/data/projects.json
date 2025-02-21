@@ -1,0 +1,88 @@
+{
+    "akatary": [
+        {
+            "id": "project1",
+            "title": "Project 1",
+            "mbs": [
+                {
+                    "id": "mb1",
+                    "title": "Mood Board 1",
+                    "nodes": [
+                        {
+                            "id": "1",
+                            "type": "txt",
+                            "position": { "x": 0, "y": 150 },
+                            
+                            "data": {
+                                "title": "Text",
+                                "src": "An extremely colorful bird. "
+                            },
+
+                            "status": "static"
+                        },
+
+                        {
+                            "id": "2",
+                            "type": "img",
+                            "position": { "x": 250, "y": 0 },
+                            "data": {
+                                "title": "Image",
+                                "src": "https://plus.unsplash.com/premium_photo-1676836059659-161e0d6ea49e?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dmFzZXxlbnwwfHwwfHx8MA%3D%3D"
+                            },
+
+                            "status": "static"
+                        },
+
+                        {
+                            "id": "3",
+                            "type": "sketch",
+                            "position": { "x": 250, "y": 150 },
+                            "data": {
+                                "title": "Sketch",
+                                "src": "https://cecilieo.com/content/images/wordpress/2024/03/11_flying_birds_drawing_tutorial_cecilieo.jpg"
+                            },
+
+                            "status": "static"
+                        },
+
+                        {
+                            "id": "4",
+                            "type": "mesh",
+                            "position": { "x": 450, "y": 150 },
+                            "data": {
+                                "title": "Vase",
+                                "src": "vase.obj"
+                            },
+
+                            "status": "ready"
+                        },
+
+                        {
+                            "id": "5",
+                            "type": "generatedImg",
+                            "position": { "x": 650, "y": 150 },
+                            "data": {
+                                "title": "Image generator",
+                                "src": ""
+                            },
+
+                            "status": "ready"
+                        },
+
+                        {
+                            "id": "6",
+                            "type": "mesh",
+                            "position": { "x": 850, "y": 250 },
+                            "data": {
+                                "title": "Bird",
+                                "src": "bird.obj"
+                            },
+
+                            "status": "ready"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

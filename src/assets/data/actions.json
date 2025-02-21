@@ -1,0 +1,41 @@
+{
+    "run": {
+        "tooltip": "run",
+        "disabled": false,
+        "icon": "fa-solid fa-circle-play",
+
+        "authOnly": true,
+        "onStatus": ["ready"],
+        "onNodeTypes": ["mesh", "generatedImg"]
+    },
+
+    "re-run": {
+        "tooltip": "re-run",
+        "disabled": false,
+        "icon": "fa-solid fa-rotate-right",
+
+        "authOnly": true,
+        "onStatus": ["done"],
+        "onNodeTypes": ["mesh", "generatedImg"]
+    },
+
+    "download": {
+        "tooltip": "download",
+        "disabled": false,
+        "icon": "fa-solid fa-download",
+
+        "authOnly": false,
+        "onStatus": ["ready", "done"],
+        "onNodeTypes": ["mesh", "generatedImg"]
+    },
+
+    "caption": {
+        "tooltip": "caption",
+        "disabled": false,
+        "icon": "fa-solid fa-closed-captioning",
+
+        "authOnly": true,
+        "onStatus": ["ready", "static", "done"],
+        "onNodeTypes": ["img", "sketch", "generatedImg"]
+    }
+}

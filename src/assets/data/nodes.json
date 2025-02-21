@@ -1,0 +1,79 @@
+{
+    "input": {
+        "txt": {
+            "tooltip": "prompt",
+            "icon": "fa-solid fa-t",
+            "disabled": false,
+            "authOnly": true
+        },
+        
+        "img": {
+            "tooltip": "upload image",
+            "icon": "fa-solid fa-upload",
+            "disabled": false,
+            "authOnly": true
+        },
+    
+        "sketch": {
+            "tooltip": "upload sketch",
+            "icon": "fa-solid fa-pencil",
+            "disabled": false,
+            "authOnly": true
+        }
+    },
+
+    "output": {
+        "generatedImg": {
+            "tooltip": "image generator",
+            "icon": "fa-solid fa-image",
+            "disabled": false,
+            "authOnly": true
+        },
+    
+        "mesh": {
+            "tooltip": "mesh generator",
+            "icon": "fa-solid fa-dice-d6",
+            "disabled": false,
+            "authOnly": true
+        }
+    },
+
+    "show": {
+        "comment": {
+            "tooltip": "comment",
+            "icon": "fa-solid fa-comment",
+            "disabled": false,
+            "authOnly": false
+        }
+    },
+
+    "hidden": {
+        "texture": {
+            "tooltip": "texture mesh",
+            "icon": "fa-solid fa-paintbrush",
+            "disabled": true,
+            "authOnly": true
+        },
+    
+        "remesh": {
+            "tooltip": "re-mesh",
+            "icon": "fa-solid fa-sliders",
+            "disabled": true,
+            "authOnly": true
+        },
+    
+        "segment": {
+            "tooltip": "segment mesh",
+            "icon": "fa-solid fa-scissors",
+            "disabled": true,
+            "authOnly": true
+        },
+    
+        "playground": {
+            "tooltip": "3d playground",
+            "icon": "fa-solid fa-cubes",
+            "disabled": true,
+            "authOnly": true
+        }
+    }
+}

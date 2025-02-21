@@ -1,0 +1,5 @@
+frontend/.env
+frontend/build 
+frontend/deploy.sh
+frontend/node_modules
+frontend/package-lock.json
