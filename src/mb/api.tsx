@@ -8,7 +8,6 @@ import { Edge } from "@xyflow/react"
 import { generateUUID } from "three/src/math/MathUtils"
 
 const mbUrl = `${process.env.REACT_APP_BACKEND_URL}/mb`
-const dataUrl = `${process.env.REACT_APP_BACKEND_URL}/data`
 
 export async function getMoodboard(id: string): Promise<mbType> {
     localStorage.removeItem(id)
@@ -23,7 +22,7 @@ export async function getMoodboard(id: string): Promise<mbType> {
 }
 
 export async function getNodeData(id: string): Promise<nodeDataType> {
-    return await (await fetch(constructUrl(dataUrl, {id}), {
+    return await (await fetch(constructUrl(`${mbUrl}/data`, {id}), {
         method: "GET", 
         credentials: "include",
         headers: defaultFetchHeaders()
@@ -31,7 +30,7 @@ export async function getNodeData(id: string): Promise<nodeDataType> {
 }
 
 export async function getNodeStatus(id: string): Promise<{status: nodeStatusType}> {
-    return await (await fetch(constructUrl(`${dataUrl}/status`, {id}), {
+    return await (await fetch(constructUrl(`${mbUrl}/node/status`, {id}), {
         method: "GET", 
         credentials: "include",
         headers: defaultFetchHeaders()
@@ -77,7 +76,7 @@ export async function editMoodboard(
 export async function runPath(mid: string, path: [nodeType, Edge[], boolean][]): Promise<[string, nodeStatusType][]> {
     path = path.map(([node, edges, reRun]) => ([{...node, data: filterObj<nodeDataType>(node.data, ["playground", "img"])}, edges, reRun]))
 
-    const nodeStatus = await (await fetch(constructUrl(`${dataUrl}/runPath`, {mid, is_demo: process.env.REACT_APP_IS_DEMO}), {
+    const nodeStatus = await (await fetch(`${mbUrl}/node/path/run`, {
         method: "POST", 
         credentials: "include",
         body: JSON.stringify(path),
@@ -88,7 +87,7 @@ export async function runPath(mid: string, path: [nodeType, Edge[], boolean][]):
 }
 
 export async function captionNode(nid: string): Promise<void> {
-    await fetch(constructUrl(`${dataUrl}/node/caption`, {nid}), {
+    await fetch(constructUrl(`${mbUrl}/node/caption`, {nid}), {
         method: "POST", 
         credentials: "include",
         headers: defaultFetchHeaders()
@@ -100,7 +99,7 @@ export async function uploadImg(mid: string, id: string, img: File): Promise<str
     const data = new FormData()
     data.set("img", img)
 
-    const url = await (await fetch(constructUrl(`${dataUrl}/img/upload`, {id}), {
+    const url = await (await fetch(constructUrl(`${mbUrl}/node/img/upload`, {id}), {
         body: data,
         method: "POST", 
         credentials: "include",
@@ -112,7 +111,7 @@ export async function uploadImg(mid: string, id: string, img: File): Promise<str
 }
 
 export async function deleteImg(mid: string, id: string): Promise<void> {
-    await fetch(constructUrl(`${dataUrl}/img/delete`, {id}), {
+    await fetch(constructUrl(`${mbUrl}/node/img/delete`, {id}), {
         method: "DELETE", 
         credentials: "include",
         headers: defaultFetchHeaders()

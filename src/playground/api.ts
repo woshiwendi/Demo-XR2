@@ -2,7 +2,6 @@
 import { meshType, playgroundType } from "./types"
 import { constructUrl, defaultFetchHeaders } from "../utils"
 
-const dataUrl = `${process.env.REACT_APP_BACKEND_URL}/data`
 const playgroundUrl = `${process.env.REACT_APP_BACKEND_URL}/playground`
 
 export async function getPlayground(id: string): Promise<playgroundType> {
@@ -14,7 +13,7 @@ export async function getPlayground(id: string): Promise<playgroundType> {
 }
 
 export async function segmentMesh(uid: string, mid: string): Promise<void> {
-    await fetch(constructUrl(`${dataUrl}/mesh/segment`, {uid, mid}), {
+    await fetch(constructUrl(`${playgroundUrl}/mesh/segment`, {uid, mid}), {
         method: "POST",
         credentials: "include",
         headers: defaultFetchHeaders()
