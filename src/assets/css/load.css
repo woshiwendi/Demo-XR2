@@ -57,7 +57,7 @@
         z-index: 1;
         position: absolute;
         transform: translateX(-50%);
-        top: calc(65px + var(--nav-top));
+        top: calc(65px + 4*var(--nav-top));
     }
 
     .load-bar { 
