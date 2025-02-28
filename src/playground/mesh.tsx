@@ -8,7 +8,7 @@ import { meshJsonType, meshTransformType, meshType } from './types';
 
 // 3rd part imports
 import { useRef } from 'react';
-import { Group, Mesh } from 'three';
+import { Euler, Group, Mesh } from 'three';
 import { useShallow } from 'zustand/shallow';
 import { GroupProps } from '@react-three/fiber';
 
@@ -63,9 +63,6 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
                     segment={{...selectedMesh, status} as meshType}
                     onUpdate={event => {
                         sTransform.current = getMeshTransform(event)
-                        if (nTransform.current.position) {
-                            // const transform = subTransform(sTransform.current, nTransform.current)
-                        }
                     }}
 
                     onPointerMissed={event => {}}
@@ -86,6 +83,12 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
                     
                     onUpdate={event => {
                         nTransform.current = getMeshTransform(event) 
+
+                        const position = nTransform.current.position.toArray()
+                        const scale = nTransform.current.scale.toArray()
+                        const rotation = new Euler().setFromQuaternion(nTransform.current.quaternion).toArray().slice(0, 3) as [number, number, number]
+
+                        updateMesh(id, {params: { scale, position, rotation }})
                     }}
                 />
             </group>

@@ -1,12 +1,12 @@
 // custom imports
 import XCanvas from "./canvas"
 import DefaultNav from "../nav"
-import { getPlayground } from "./api"
 import { PlaygroundPanel } from "./panel"
 import ModeControls from "./controls/mode"
 import { navStateType } from "../nav/types"
 import { PlaygroundToolbar } from "./toolbar"
 import { find, useCustomState } from "../utils"
+import { getPlayground, initMesh } from "./api"
 import { useUserStore } from "../user/state/store"
 import { usePlaygroundStore } from "./state/store"
 import { LoadingBar } from "../components/loading"
@@ -61,8 +61,13 @@ export default function Playground(props: PlaygroundProps) {
             
             setLoading({on: true, progressText: "Initializing..."})
             const meshes = (await getPlayground(plid)).meshes
-            meshes.forEach(mesh => addMesh(mesh))
-            setLoading({on: false, progressText: ""})
+            
+            for (let i = 0; i < meshes.length; i++) {
+                meshes[i] = await initMesh(meshes[i].id)
+                addMesh(meshes[i])
+            }
+            // addMesh(meshes[0])
+            setLoading({on: false, progressText: undefined})
         }
     }
 
@@ -76,11 +81,10 @@ export default function Playground(props: PlaygroundProps) {
                 const {type, mid, data} = JSON.parse(event.data)
                 switch (type) {
                     case "meshUpdate":
-                        if (find(meshes, {id: mid}, ['id'])) {
-                            setLoading({on: true, progressText: "Re-initializing..."})
-                            updateMesh(mid, data)
-                            setLoading({on: false, progressText: ""})
-                        }
+                        updateMesh(mid, data, false)
+                        break
+                    case "meshAdd":
+                        addMesh(data)
                         break
                     default:
                         console.log(`[onmessage] >> got message of type ${type}`)

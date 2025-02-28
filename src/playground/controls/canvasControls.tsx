@@ -69,6 +69,7 @@ export function XControl({id, orbitRef}: XControlProps) {
         }
     })
 
+    
     const object = scene.getObjectByName(id)    
     const meshTool: meshToolType | undefined = useMemo(() => ["rotate", "scale", "translate"].includes(tool)? tool as meshToolType : undefined, [tool])
 

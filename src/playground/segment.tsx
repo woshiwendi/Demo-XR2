@@ -1,14 +1,16 @@
 // custom imports
 import { meshType } from './types';
 import { selector } from './state';
+import { useCustomState } from '../utils';
 import { usePlaygroundStore } from './state/store';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { isLocked, toFloat32Array, toUint32Array } from './utils';
 
 // 3rd part imports
-import { useMemo, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
+import { useEffect, useMemo, useRef } from 'react';
 import { generateUUID } from 'three/src/math/MathUtils';
-import { ThreeEvent, useFrame, useThree, MeshProps } from '@react-three/fiber';
+import { ThreeEvent, useFrame, useThree, MeshProps, useLoader } from '@react-three/fiber';
 import { DoubleSide, Raycaster, Vector2, Mesh, Intersection, Object3D, Object3DEventMap, Material } from 'three';
 
 export type XSegmentProps = MeshProps & {
@@ -18,11 +20,28 @@ export type XSegmentProps = MeshProps & {
     onVerticesSelect?: (objects: Intersection<Object3D<Object3DEventMap>>[], point: number[]) => void
 }
 
-export function XSegment({segment: {id, vertices = [], colors = [], faces = [], material, status, ...segment}, name, ref, autoRotate, onVerticesSelect,...props}: XSegmentProps) {
+export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], faces = [], material, status, ...segment}, name, ref, autoRotate, onVerticesSelect,...props}: XSegmentProps) {
     const segmentRef = useRef<Mesh>(null!)
+
+    const mtlLoader = new MTLLoader()
+
+    const [mtl, setMTL] = useCustomState<{[key: string]: Material}>(undefined)
+
+    useEffect(() => { 
+        if (segment.params?.mtlUrl) {
+            mtlLoader.load(segment.params.mtlUrl, (mtl) => {
+                mtl.preload()
+                // if (segment.params?.textures) {
+                //     mtl.loadTexture(segment.params?.textures[0])
+                // }
+                setMTL(mtl.materials)
+            })
+        } 
+    }, [segment.params?.mtlUrl])
+
     const locked = useMemo(() => isLocked(status), [status])
     const { mode, tool, selected, select, unselect } = usePlaygroundStore(useShallow(selector))
-    
+
     useFrame((state, delta) => {
         const material = segmentRef.current.material
         if (locked) {
@@ -36,9 +55,8 @@ export function XSegment({segment: {id, vertices = [], colors = [], faces = [], 
             }
         }
     })
-
     const { camera, scene } = useThree((state) => ({ camera: state.camera, scene: state.scene }))
-   
+  
     const selectVertices = (event: ThreeEvent<PointerEvent | MouseEvent>) => {
         const mouse = new Vector2()
         const raycaster = new Raycaster()
@@ -129,6 +147,12 @@ export function XSegment({segment: {id, vertices = [], colors = [], faces = [], 
                     array={toFloat32Array(vertices)}
                 />
                 <bufferAttribute 
+                    itemSize={2} 
+                    attach="attributes-uv" 
+                    count={uvs.length / 2} 
+                    array={toFloat32Array(uvs)}
+                />
+                <bufferAttribute 
                     itemSize={3} 
                     attach="attributes-color" 
                     count={colors.length / 3} 
@@ -137,11 +161,14 @@ export function XSegment({segment: {id, vertices = [], colors = [], faces = [], 
                     }
                 />
             </bufferGeometry>
+
             <meshPhongMaterial
+                {...(mtl? Object.values(mtl)[0] : {})}
+                
+                needsUpdate 
                 vertexColors
                 side={DoubleSide} 
-                attach={"material"} 
-                {...material as any} 
+                attach={"material"}  
                 wireframe={mode === "wireframe"}
                 color={selected.includes(id) && tool !== "vertexSelector" ? "yellow" : undefined} 
             />

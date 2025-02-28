@@ -26,7 +26,7 @@ type NodeActionsProps = JSX.IntrinsicElements["div"] & {
 export default function NodeActions({id, type, status, mode, className = "", ...props}: NodeActionsProps) {
     const { run, download, caption } = useNodeActions()
     
-    const { perms, setNodeMode} = useMoodboardStore(useShallow(selector))
+    const { perms, updateNode } = useMoodboardStore(useShallow(selector))
     const { id: uid, isAuthenticated } = useUserStore(useShallow(userSelector))
 
     const modes: {name: string, key: nodeModeTypes}[] = [
@@ -58,7 +58,10 @@ export default function NodeActions({id, type, status, mode, className = "", ...
                             onClick = () => caption(id)
                             break
                         case "re-run":
-                            onClick = () => run(id, uid, true)
+                            onClick = () => {
+                                updateNode(id, {reRun: true})
+                                run(id, uid, true)
+                            }
                             break
                         default:
                             break
@@ -82,7 +85,7 @@ export default function NodeActions({id, type, status, mode, className = "", ...
                 <Dropdown defaultValue={mode || "generate"}>
                     {modes.map(({name, key}) => {
                         return (
-                            <span key={key} onClick={() => setNodeMode(id, key)}>{name}</span>
+                            <span key={key} onClick={() => updateNode(id, {mode: key}, true)}>{name}</span>
                         )
                     })}
                 </Dropdown>

@@ -63,8 +63,6 @@ export const useMoodboardStore = create<MoodBoardState>()(
                 addedEdges: [],
                 deletedEdges: [],
 
-                nodeStatus: new Map(),
-
                 perms: undefined,
 
                 init: async (mb) => {
@@ -80,7 +78,7 @@ export const useMoodboardStore = create<MoodBoardState>()(
                         }   
                     }
 
-                    set({ id: mb.id, nodeStatus, owner: mb.owner })
+                    set({ id: mb.id, owner: mb.owner })
                     
                     state.initNodes(mb)
                 },
@@ -98,7 +96,7 @@ export const useMoodboardStore = create<MoodBoardState>()(
                     for (let i = 0; i < state.nodes.length; i++) {
                         const node = state.nodes[i]
 
-                        const isPending = state.nodeStatus.get(node.id) === "pending"
+                        const isPending = (node as nodeType).status === "pending"
                         let targetEdge: Partial<edgeType> = {animated: isPending}
                         let sourceEdge: Partial<edgeType> = {style: {stroke: `var(--node-title-color-${node.type})`, opacity: 0.4}} 
 
@@ -124,43 +122,20 @@ export const useMoodboardStore = create<MoodBoardState>()(
                     state.initEdges(mb)
                 },
                 
-                addNode: async (node, status, owner) => {
+                addNode: (node, status, owner, save = true) => {
                     const state = get()
                 
                     set({
-                        nodes: [...state.nodes, {...node, status, owner, update: "add"} as Node],
-                        nodeStatus: onStatusUpdate(state.nodeStatus, node.id, "pending"),
+                        nodes: [...state.nodes, {...node, status, owner, update: save ? "add" : undefined} as Node]
                     })
                     
-                    await state.save()
-
-                    set({
-                        nodeStatus: onStatusUpdate(state.nodeStatus, node.id, status),
-                    })
-
-                },
-
-                pushNode: (node) => {
-                    const state = get()
-                    set({
-                        nodes: [...state.nodes, node],
-                        nodeStatus: onStatusUpdate(state.nodeStatus, node.id, node.status),
-                    })
-                },
-
-                pushNodeData: (id, data, save) => {
-                    const state = get()
-
-                    set({
-                        nodes: update<Node>(state.nodes, {id}, ['id'], {data, update: save ? "update" : undefined}),
-                    })
-
                     if (save) {
                         state.save()
                     }
+
                 },
                 
-                updateNodeData: async (id, data) => {
+                updateNodeData: async (id, data, save = true) => {
                     const state = get()
                     console.log(`[updateNodeData] >> updating node data for ${id}...`)
                     // console.log(`[updateNodeData] (data) >>`, data)
@@ -183,37 +158,36 @@ export const useMoodboardStore = create<MoodBoardState>()(
                                     await deleteImg(state.id, node.id)
                                     state.setLoading({on: false, progressText: ""})
                                 } 
-                                state.pushNodeData(id, {...data, img: url || data.img}, true)
+                                data.img = url || data.img
                             }
                             break
                         case "mesh":
                         case "comment":
                         case "generatedImg":
                         case "txt":
-                            state.pushNodeData(id, data, true)
                             break
                         default: break
                     }
-                },
-                
-                setNodeStatus: (id, status) => {
-                    const state = get()
-                    const isPending = status === 'pending'
 
                     set({
-                        nodeStatus: onStatusUpdate(state.nodeStatus, id, status),
-                        edges: update<edgeType>(state.edges, {target: id}, ['target'], {animated: isPending})
+                        nodes: update<nodeType>(state.nodes, {id}, ['id'], {data, update: save ? "update" : undefined})
                     })
+
+                    if (save) {
+                        state.save()
+                    }
                 },
 
-                setNodeMode: (id, mode) => {
+                updateNode: (id, node, save = false) => {
                     const state = get()
 
                     set({
-                        nodes: update<nodeType>(state.nodes, {id}, ['id'], {mode})
+                        nodes: update<nodeType>(state.nodes, {id}, ['id'], {...node, update: save ? "update" : undefined})
                     })
 
-                    state.save()
+                    if (save) {
+                        state.save()
+                    }
                 }
             }
         }, {

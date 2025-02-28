@@ -32,12 +32,9 @@ export default function BaseNode({id, type, title, targets = [], sources = [], c
         owner: mbOwner, 
 
         selected, 
-        nodeStatus, 
         
         select, 
         unselect,
-        
-        setNodeStatus, 
     } = useMoodboardStore(useShallow(selector));
     const { id: uid } = useUserStore(useShallow(userSelector))
     const active = selected.includes(id)
@@ -45,7 +42,7 @@ export default function BaseNode({id, type, title, targets = [], sources = [], c
     const node = useMemo(() => find<nodeType>(nodes, {id}, ['id']), [nodes])
     const owner = useMemo(() => node?.owner, [node])
     
-    const status = useMemo(() => nodeStatus.get(id), [nodes])
+    const status = useMemo(() => node?.status, [nodes])
     const isPending = status === "pending"
 
     return (

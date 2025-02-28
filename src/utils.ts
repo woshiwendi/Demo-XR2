@@ -1,9 +1,11 @@
 // custom imports 
-import { themeType } from "./types"
-import { navStateType } from "./nav/types";
+import { extTypes } from "./types"
+import { navStateType } from "./nav/types"
+import { downloadFileType, themeType } from "./types"
 import { CookieNotFound, UnSecureContext } from "./errors";
 
 // third part 
+import JSZip from "jszip";
 import { useState } from "react";
 import imageResize from 'image-resize'
 
@@ -93,13 +95,27 @@ export function img2Base64(img: Blob, callback: (url: string) => void) {
 }
 
 // array utils 
-export function get(a: any, key: string): any { 
+export function get(a: any, key: string | number): any { 
     if (!a) return 
+    if (typeof key === "number") return a[key]
     return key.split('.').reduce((curr, key) => curr && curr[key], a)
 }
 
-export function equals<T>(a: any, b: any, keys: string[], bKeys?: string[], check = (a: boolean, b: boolean) => a && b, defaultCheck = true): boolean {
-    return keys.reduce((curr, key, i) => check(curr, (get(a, key) === get(b, (bKeys && bKeys[i]) || key))), defaultCheck)
+export function equals<T>(a: any, b: any, keys: (string | number)[], bKeys?: (string | number)[], check = (a: boolean, b: boolean) => a && b, defaultCheck = true): boolean {
+    return keys.reduce((curr, key, i) => {
+        const a_i = get(a, key)
+        const b_i = get(b, (bKeys && bKeys[i]) || key)
+
+        let equal = false
+
+        if (Array.isArray(a_i) && Array.isArray(b_i)) {
+            equal = equals(a_i, b_i, Array(a_i.length).fill(0).map((_, i) => i))
+        } else {
+            equal = a_i === b_i
+        }
+        
+        return check(curr, equal)
+    }, defaultCheck) 
 }
 
 export function arrEquals<T>(A: any[], B: any[], keys: string[], bKeys?: string[], check = (a: boolean, b: boolean) => a && b, defaultCheck = true): boolean {
@@ -230,17 +246,51 @@ export function resizeImage(img: File, callback: (img: Blob) => any): void {
     }
 }
 
-export async function downloadImg(url: string, title: string, ext: "png" | "obj" = "png"): Promise<void> {
-    console.log(`[downloadImg] >> downloading ${title} from ${url}`)
-    
-    const image = await fetch(url)
-    const imageBlog = await image.blob()
-    url = URL.createObjectURL(imageBlog)
+export async function getUrlBlob(url: string): Promise<Blob> {
+    console.debug(`[getUrlBlob] >> getting blob from ${url}`)
+    const file = await fetch(url)
+    const blob = await file.blob()
+    return blob
+}
 
+export async function zip(files: downloadFileType[]): Promise<Blob> {
+    const zip = new JSZip()
+
+    for (let i = 0; i < files.length; i++) {
+        let blob: Blob | undefined
+        if (files[i].blob) {
+            blob = files[i].blob
+        } else {
+            blob = await getUrlBlob(files[i].url)
+        } 
+
+        if (!blob) continue
+        zip.file(`${files[i].title.toLowerCase().replaceAll(" ", "_")}.${files[i].ext || "png"}`, blob)
+    }
+
+    return await zip.generateAsync({type: "blob"})
+}
+
+export async function downloadZip(files: downloadFileType[]): Promise<void> {
+    if (files.length === 1) return downloadFile(files[0])
+
+    const content = await zip(files)
+    downloadBlob(content, files[0].title, "zip")
+}
+
+export async function downloadFile(file: downloadFileType): Promise<void> {
+    console.debug(`[downloadImg] >> downloading ${file.title} from ${file.url}`)
+    
+    const blob = await getUrlBlob(file.url)
+    downloadBlob(blob, file.title, file.ext)
+}
+
+export function downloadBlob(blob: Blob, title: string, ext: extTypes): void {
+    const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
 
     link.href = url
-    link.download =`${title}.${ext}`
+    link.download =`${title.toLowerCase().replaceAll(" ", "_")}.${ext}`
 
     document.body.appendChild(link)
     link.click()

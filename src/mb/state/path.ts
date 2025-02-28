@@ -1,5 +1,6 @@
 // custom imports 
 import { find } from "../../utils";
+import { nodeType } from "../types";
 import { setStateType } from "../../types";
 import { dfs, isValidNode } from "../utils";
 import { MoodBoardState, PathState} from ".";
@@ -37,24 +38,17 @@ export default function path(set: setStateType<MoodBoardState>, get: () => MoodB
                 const [node, edges] = path[i]
                 switch (node.type) {
                     case "generatedImg":
-                        const img_geo_edge = find<Edge>(edges, {targetHandle: "geometry"}, ['targetHandle'])
-                        
-                        if (img_geo_edge) {
-                            const img_geo_source = find<Node>(state.nodes, {id: img_geo_edge?.source}, ['id'])
-    
-                            isValidNode(img_geo_source)   
-                        } else {
-                            throw new NodeInputMissing(node.id, "geometry")
-                        }
-                        break 
-    
                     case "mesh":
-                        const mesh_geo_edge = find<Edge>(edges, {targetHandle: "geometry"}, ['targetHandle'])
-                        if (mesh_geo_edge) {
-                            const mesh_geo_node = find<Node>(state.nodes, {id: mesh_geo_edge?.source}, ['id'])
+                        const data = node.type === "generatedImg"? node.data.img : node.data.playground
+                        const geo_edge = find<Edge>(edges, {targetHandle: "geometry"}, ['targetHandle'])
+
+                        // checks if there is a geometry
+                        if ((data && !(node as nodeType).reRun) || geo_edge) {
+                            const geo_source = find<Node>(state.nodes, {id: geo_edge?.source}, ['id'])
     
-                            isValidNode(mesh_geo_node)   
-                        } else{
+                            isValidNode(geo_source)   
+                        } else {
+                            state.updateNode(node.id, {reRun: false})
                             throw new NodeInputMissing(node.id, "geometry")
                         }
                         break

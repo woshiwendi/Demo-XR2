@@ -46,6 +46,7 @@ export default function Projects({...props}: ProjectsProps) {
                         {/* <h3 style={{fontWeight: 550, margin: "10px 0 0 10px"}}>{project.title}</h3> */}
                         <EditableH3 
                             value={project.title}
+                            style={{width: "100%"}}
                             onTypingStopped={header => { editProject(project.id, header) }}
                         />
                         <p style={{margin: "10px 0 0 10px"}}>{project.mbs.length} mood boards · Updated {elapsedTime(updatedAt)} ago</p>

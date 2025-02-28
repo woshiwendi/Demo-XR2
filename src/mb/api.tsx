@@ -73,8 +73,8 @@ export async function editMoodboard(
     return mb
 }
 
-export async function runPath(mid: string, path: [nodeType, Edge[], boolean][]): Promise<[string, nodeStatusType][]> {
-    path = path.map(([node, edges, reRun]) => ([{...node, data: filterObj<nodeDataType>(node.data, ["playground", "img"])}, edges, reRun]))
+export async function runPath(mid: string, path: [nodeType, Edge[]][]): Promise<[string, nodeStatusType][]> {
+    path = path.map(([node, edges]) => ([{...node, data: filterObj<nodeDataType>(node.data, ["playground", "img"])}, edges]))
 
     const nodeStatus = await (await fetch(`${mbUrl}/node/path/run`, {
         method: "POST", 

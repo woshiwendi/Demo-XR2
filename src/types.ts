@@ -26,3 +26,17 @@ export type setStateType<T> = {
         _(state: T): T;
     }['_'], replace: true): void;
 }['_'];
+
+
+export type meshExtTypes = "obj" 
+export type imgExtTypes = "png" | "jpg" | "jpeg" | "gif"
+
+export type extTypes = meshExtTypes | imgExtTypes | "mtl" | "zip"
+
+export type downloadFileType = {
+    url: string
+    title: string
+    ext: extTypes
+
+    blob?: Blob
+}

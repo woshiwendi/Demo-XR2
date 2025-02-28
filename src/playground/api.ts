@@ -20,6 +20,15 @@ export async function segmentMesh(uid: string, mid: string): Promise<void> {
     })
 }
 
+export async function editMesh(id: string, data: Partial<meshType>): Promise<meshType> {
+    return await (await fetch(`${playgroundUrl}/mesh/edit`, {
+        method: "PUT", 
+        credentials: "include",
+        headers: defaultFetchHeaders(),
+        body: JSON.stringify({id, ...data}),
+    })).json()
+}
+
 export async function getMesh(id: string): Promise<meshType> {
     return await (await fetch(constructUrl(`${playgroundUrl}/mesh`, {id}), {
         method: "GET", 

@@ -28,6 +28,8 @@ export type nodeType = Node & {
     mode?: nodeModeTypes
     update?: updateTypes
     params?: nodeParamsType
+
+    reRun?: boolean
 }
 
 export type mbMetaType = {

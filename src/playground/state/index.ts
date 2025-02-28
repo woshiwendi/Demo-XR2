@@ -6,7 +6,11 @@ import { meshType, playgroundType, playgroundModeType, playgroundToolType, meshJ
 // third party 
 import { Intersection, Object3D, Object3DEventMap } from "three"
 
-export interface PlaygroundState extends BaseState {
+export interface SaveState {
+    // save: () => void
+}
+
+export interface PlaygroundState extends BaseState, SaveState {
     id: string
     title: string
     meshes: meshType[]
@@ -17,10 +21,9 @@ export interface PlaygroundState extends BaseState {
 
     getMesh: (id: string) => meshType
     deleteMesh: (id: string) => void
-    addMesh: (data: meshType) => void
-    getUpdatedMeshes: () => meshType[]
-    updateMesh: (id: string, data: Partial<meshType>) => void
-    
+    addMesh: (mesh: meshType) => void
+    updateMesh: (id: string, data: Partial<meshType>, save?: boolean) => void
+
     getSegment: (id: string, parent: meshType) => meshType | undefined
     deleteSegment: (id: string, parent: meshType) => meshType | undefined
     updateSegment: (id: string, parent: meshType, data: Partial<meshType>) => meshType | undefined
@@ -48,7 +51,6 @@ export const selector = (state: PlaygroundState) => ({
     addMesh: state.addMesh,
     deleteMesh: state.deleteMesh,
     updateMesh: state.updateMesh,
-    getUpdatedMeshes: state.getUpdatedMeshes,
 
     select: state.select,
     unselect: state.unselect,

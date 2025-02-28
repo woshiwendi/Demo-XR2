@@ -12,7 +12,7 @@ export default function save(set: setStateType<MoodBoardState>, get: () => MoodB
             const state = get()
             
             const { nodes: updatedNodes, edges: updatedEdges } = getUpdated(state.id, state.nodes as nodeType[], state.edges)
-
+            
             if (!updatedNodes.length && !updatedEdges.length) return 
             
             

@@ -1,8 +1,10 @@
 // custom imports
+import { downloadZip, zip } from "../utils"
+import { extTypes, downloadFileType } from "../types"
 import { meshTransformType, meshType, meshStatusType } from "./types"
 
 // 3rd part imports
-import { Mesh, Quaternion, TypedArray, Vector3 } from "three"
+import { Euler, Mesh, Quaternion, TypedArray, Vector3 } from "three"
 
 export function toTypedArray<T extends TypedArray>(A: any[], array: T): T {
     const {n, m} = {n: A.length, m: A[0]? A[0].length : 1}
@@ -88,6 +90,7 @@ export function closestK(A: [number, number[]][], p: number[], k: number = 1): [
 
 export function isLocked(status: meshStatusType): boolean {
     switch (status) {
+        case "generating":
         case "segmenting":
         case "regenerating":
             return true
@@ -96,4 +99,51 @@ export function isLocked(status: meshStatusType): boolean {
         default:
             return false
     }
+}
+
+export async function meshDownloadFiles(mesh: meshType): Promise<downloadFileType[]> {
+    const files: downloadFileType[] = []
+    files.push({url: mesh.url, title: mesh.title, ext: "obj"})
+    files.push({url: mesh.gif, title: mesh.title, ext: "png"})
+
+    if (mesh.params?.mtlUrl) {
+        files.push({url: mesh.params.mtlUrl, title: "material", ext: "mtl"})
+    }
+    if (mesh.params?.textures) {
+        files.push(...mesh.params.textures.map((url, i) => ({url, title: `material_${i}`, ext: "png"}) as downloadFileType))
+    }
+
+    if (mesh.segments) {
+        for (const segment of mesh.segments) {
+            const segmentFiles = await meshDownloadFiles(segment)
+            const segmentZip = await zip(segmentFiles)
+
+            files.push({url: "", title: `segment_${segment.title}`, ext: "zip", blob: segmentZip})
+        }
+    }
+
+    return files
+}
+
+export async function downloadMesh(mesh: meshType) {
+    downloadZip(await meshDownloadFiles(mesh))
+}
+
+export function meshParamsToTransform(
+    params: meshType["params"], 
+    defaults: Partial<meshTransformType> = {
+        scale: new Vector3(1, 1, 1), 
+        position: new Vector3(0, 0, 0), 
+        quaternion: new Quaternion()
+    }
+): meshTransformType {
+    const scale = params?.scale? new Vector3(...params.scale) : undefined
+    const position = params?.position? new Vector3(...params.position) : undefined
+    const rotation = params?.rotation? new Euler(...params.rotation) : new Euler(0, -2*Math.PI / 3, 0)
+
+   return  {
+        quaternion: new Quaternion().setFromEuler(rotation),
+        scale: scale || defaults.scale || new Vector3(1, 1, 1),
+        position: position || defaults.position || new Vector3(0, 0, 0),
+   }
 }

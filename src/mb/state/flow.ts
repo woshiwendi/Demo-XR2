@@ -106,7 +106,7 @@ export default function flow(set: setStateType<MoodBoardState>, get: () => MoodB
                 case "mesh":
                     break 
                 case "geometry":
-                    if (edge.sourceHandle === "mesh") return false
+                    // if (edge.sourceHandle === "mesh") return false
                     const target: Node | undefined = find<Node>(state.nodes, edge, ['id'], ['target'])
                     if (!target) return false 
     

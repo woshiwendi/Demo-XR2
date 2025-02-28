@@ -47,17 +47,13 @@ export default function Moodboard({...props}: MoodboardProps) {
         init, 
         initPerms,
 
-        nodeStatus,
-        setNodeMode,
-        setNodeStatus,
+        updateNode,
         
         selected, 
         select,
         unselect, 
         
         addNode,
-        pushNode,
-        pushNodeData,
         updateNodeData,
 
         getPath,

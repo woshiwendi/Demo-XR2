@@ -11,7 +11,7 @@ import { useShallow } from "zustand/shallow"
 
 export default function useSocket() {
     const { id: uid } = useUserStore(useShallow(userSelector))
-    const { setNodeStatus, pushNodeData, pushNode, init, perms } = useMoodboardStore(useShallow(selector))
+    const { nodes, updateNode, updateNodeData, init, addNode, perms } = useMoodboardStore(useShallow(selector))
 
     const socket = useRef<WebSocket>()
 
@@ -26,16 +26,15 @@ export default function useSocket() {
                 switch (type) {
                     case "nodeUpdate":
                         if (nid && status) {
-                            setNodeStatus(nid, status)
-                            if (data) pushNodeData(nid, data)
+                            updateNode(nid, {status})
+                            if (data) updateNodeData(nid, data, false)
                         }
                         break
                     case "moodboardUpdate":
                         if (data) init(data)
                         break
                     case "nodeAdd":
-                        if (data) pushNode(data)
-                        if (nid && status) setNodeStatus(nid, status)
+                        if (data) addNode(data, data.status, data.owner, false)
                         break
                     default:
                         console.warn(`[onmessage] >> got message of type ${type}`)

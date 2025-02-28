@@ -37,8 +37,6 @@ export interface MoodBoardState extends FlowState, SaveState, PathState, BaseSta
     id: string
     title: string
     owner: userType
-    
-    nodeStatus: Map<string, nodeStatusType>
 
     perms?: permsType
 
@@ -47,14 +45,10 @@ export interface MoodBoardState extends FlowState, SaveState, PathState, BaseSta
     initEdges: (mb: mbType) => void
     initNodes: (mb: mbType) => void
     
-    pushNode: (node: nodeType) => void 
-    addNode: (node: Node, status: nodeStatusType, owner?: Partial<userType>) => void
+    updateNode: (id: string, node: Partial<nodeType>, save?: boolean) => void
+    addNode: (node: Node, status: nodeStatusType, owner?: Partial<userType>, save?: boolean) => void
 
-    updateNodeData: (id: string, data: Partial<nodeDataType>) => void
-    pushNodeData: (id: string, data: Partial<nodeDataType>, save?: boolean) => void
-
-    setNodeMode: (id: string, mode: nodeModeTypes) => void
-    setNodeStatus: (id: string, status: nodeStatusType) => void
+    updateNodeData: (id: string, data: Partial<nodeDataType>, save?: boolean) => void
 }
 
 export const selector = (state: MoodBoardState) => ({
@@ -71,36 +65,23 @@ export const selector = (state: MoodBoardState) => ({
     
     init: state.init,
     initPerms: state.initPerms,
-    // initEdges: state.initEdges,
-
-    // addedNodes: state.addedNodes,
-    // deletedNodes: state.deletedNodes,
-
-    // addedEdges: state.addedEdges,
-    // deletedEdges: state.deletedEdges,
-
-    nodeStatus: state.nodeStatus,
     
     selected: state.selected, 
     select: state.select,
     unselect: state.unselect,
 
     addNode: state.addNode,
-    pushNode: state.pushNode,
-    // onNodesDelete: state.onNodesDelete,
+    
     onNodesChange: state.onNodesChange,
     onNodeDragStop: state.onNodeDragStop,
 
-    pushNodeData: state.pushNodeData,
     updateNodeData: state.updateNodeData,
 
-    setNodeMode: state.setNodeMode,
-    setNodeStatus: state.setNodeStatus,
+    updateNode: state.updateNode,
 
     onConnect: state.onConnect,
     onEdgeClick: state.onEdgeClick,
     onEdgesChange: state.onEdgesChange,
-    // onEdgesDelete: state.onEdgesDelete,
     onEdgeMouseEnter: state.onEdgeMouseEnter,
     onEdgeMouseLeave: state.onEdgeMouseLeave,
     isValidConnection: state.isValidConnection,

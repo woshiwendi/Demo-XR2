@@ -1,12 +1,13 @@
 // custom imports
-import { Material, Mesh, Quaternion, Vector3 } from "three"
+import { Euler, Material, Mesh, Quaternion, Vector3 } from "three"
 
 // third party
 
-export type meshStatusType = "segmenting" | "regenerating" | "ready" | "error"
+export type meshStatusType = "segmenting" | "regenerating" | "ready" | "error" | "generating"
 export type meshJsonType = {
     id: string 
-
+    
+    uvs: number[][]
     faces: number[][]
     colors: number[][]
     vertices: number[][]
@@ -25,6 +26,15 @@ export type meshType = Mesh & meshJsonType & {
 
     selected: meshJsonType
     unselected: meshJsonType
+
+    params?: {
+        mtlUrl?: string
+        textures?: string[]
+        
+        scale?: [number, number, number]
+        position?: [number, number, number]
+        rotation?: [number, number, number]
+    }
 } 
 
 export type playgroundType = {

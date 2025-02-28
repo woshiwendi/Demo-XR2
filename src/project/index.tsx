@@ -36,6 +36,7 @@ export default function Project({id, ...props}: ProjectProps) {
             {loading.on && <LoadingBar progressText={loading.progressText} style={{top: "var(--nav-top)"}}/>}
             <EditableH1 
                 value={title}
+                style={{width: "100%"}}
                 disabled={!isAuthenticated}
                 onTypingStopped={(header) => {
                     if (id) {

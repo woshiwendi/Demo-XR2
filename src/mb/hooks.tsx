@@ -1,12 +1,14 @@
 // custom imports
-import { nodeType } from "./types"
 import { selector } from "./state"
+import { nodeType } from "./types"
 import { initNodeStatus } from "./nodes"
 import { NodeInputMissing } from "./errors"
 import { captionNode, runPath } from "./api"
 import { useMoodboardStore } from "./state/store"
 import { useUserStore } from "../user/state/store"
-import { downloadImg, filter, find } from "../utils"
+import { downloadZip, filter, find } from "../utils"
+import { extTypes, downloadFileType } from "../types"
+import { meshDownloadFiles } from "../playground/utils"
 import { selector as userSelector } from "../user/state"
 
 // third party
@@ -16,17 +18,15 @@ import { Edge, getViewportForBounds, useReactFlow } from "@xyflow/react"
 
 export function useNodeActions() {
     const { id: uid, name } = useUserStore(useShallow(userSelector))
-    const { id: mid, nodes, perms, nodeStatus, getPath, setNodeStatus, addNode } = useMoodboardStore(useShallow(selector));
+    const { id: mid, nodes, perms, getPath, addNode, updateNode } = useMoodboardStore(useShallow(selector));
 
     const run = (id: string, uid: string, reRun: boolean = false) => {
         try {
             if (!perms?.isOwner && !perms?.isEditor) return 
             // setNodeStatus(id, "pending")
-            const path: [nodeType, Edge[], boolean][] = getPath(id).map(([node, edges]) => ([
-                {...node, status: nodeStatus.get(node.id)} as nodeType, edges, reRun
-            ]))
-            
+            const path: [nodeType, Edge[]][] = getPath(id) as [nodeType, Edge[]][]
             runPath(mid, path)
+            updateNode(id, {reRun: false})
         } catch (error) {
             if (error instanceof NodeInputMissing) {
                 return console.error(error.message)
@@ -35,22 +35,20 @@ export function useNodeActions() {
         }
     }
 
-    const download = (id: string) => {
+    const download = async (id: string) => {
         const node = find<nodeType>(nodes, {id}, ['id'])
         if (!node) {
             console.warn(`[download] >> node ${id} not found`)
             return
         }
 
-        let url: string | undefined = undefined
-        let ext: "png" | "obj" | undefined = undefined
+        let files: downloadFileType[] = []
         switch (node.type) {
             case "generatedImg":
                 const img = node.data.img
 
                 if (typeof img === "string") {
-                    url = img
-                    ext = "png"
+                    files.push({url: img, title: node.data.title, ext: "png"})
                 } else {
                     console.warn(`[download] >> node ${id} img is not a url`)
                 }
@@ -58,8 +56,8 @@ export function useNodeActions() {
             case "mesh":
                 const mesh = node.data.playground?.meshes[0]
                 if (mesh) {
-                    ext = "obj"
-                    url = mesh.url
+                    files = await meshDownloadFiles(mesh)
+
                 } else {
                     console.warn(`[download] >> node ${id} has no mesh`)
                 }
@@ -69,8 +67,8 @@ export function useNodeActions() {
                 return
         }
 
-        if (url) {
-            downloadImg(url, node.data.title, ext)
+        if (files) {
+            downloadZip(files)
         }
     }
 
@@ -119,7 +117,8 @@ export function useToolbar() {
                     src: "",
                     id: generateUUID(), 
                     title: `${tool.tooltip} ${filter(nodes, {type}, ['type'], undefined, eq => eq).length}`,
-                }
+                },
+                dragHandle: ["txt"].includes(type) ? ".drag-handle__custom" : undefined
             },
             initNodeStatus[type] || "static",
             uid ? { id: uid, name } : undefined
