@@ -95,8 +95,9 @@ export const useMoodboardStore = create<MoodBoardState>()(
                     
                     for (let i = 0; i < state.nodes.length; i++) {
                         const node = state.nodes[i]
-
+                        
                         const isPending = (node as nodeType).status === "pending"
+
                         let targetEdge: Partial<edgeType> = {animated: isPending}
                         let sourceEdge: Partial<edgeType> = {style: {stroke: `var(--node-title-color-${node.type})`, opacity: 0.4}} 
 
@@ -181,8 +182,9 @@ export const useMoodboardStore = create<MoodBoardState>()(
                 updateNode: (id, node, save = false) => {
                     const state = get()
 
-                    set({
-                        nodes: update<nodeType>(state.nodes, {id}, ['id'], {...node, update: save ? "update" : undefined})
+                    set({ 
+                        nodes: update<nodeType>(state.nodes, {id}, ['id'], {...node, update: save ? "update" : undefined}), 
+                        edges: update<edgeType>(state.edges, {target: id}, ['target'], {animated: node.status === "pending"}),
                     })
 
                     if (save) {
