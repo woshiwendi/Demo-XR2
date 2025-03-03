@@ -30,11 +30,28 @@ export default function MeshNode({id, data: {title, src, playground}, ...props}:
             // style={{height: hasData? 175 : 120, width: 175}}
         >
             <Img 
-                disabled 
+                // disabled 
                 src={playground?.meshes[0].gif} 
                 href={playground? `/${uid}/playground/${playground.id}` : undefined}
                 placeholder="Generated mesh will appear here" style={{textAlign: "center"}}
-            />
+            >
+                {playground && 
+                    <div className="absolute img-previewer-actions">
+                        <a 
+                            target="_blank"
+                            className="filled-icon-button pointer" 
+                            href={`/${uid}/playground/${playground.id}`}
+                            style={{
+                                textDecoration: "none",
+                                backgroundColor: "var(--bg-secondary)", 
+                                fontSize: "var(--font-size-body-small)"
+                            }}
+                        >
+                        open in playground
+                        </a>
+                    </div>
+                }
+            </Img>
         </BaseNode>
     )
 }

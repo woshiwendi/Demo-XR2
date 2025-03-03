@@ -12,7 +12,7 @@ type ImgProps = JSX.IntrinsicElements["div"] & {
     onUpload?: (file?: File) => void
 }
 
-export function Img({src = "", href, imgClassName, imgStyle, disabled, placeholder, className = "", style, onUpload, ...props}: ImgProps) {
+export function Img({src = "", href, imgClassName, imgStyle, disabled, placeholder, className = "", style, onUpload, children, ...props}: ImgProps) {
     const [name, setName] = useState<string>();
     const [img, setImg] = useState<string>();
 
@@ -61,6 +61,7 @@ export function Img({src = "", href, imgClassName, imgStyle, disabled, placehold
             }
 
             {!disabled && 
+                children ||
                 <div className="absolute img-previewer-actions">
                     <button 
                         className="filled-icon-button pointer" 
@@ -84,6 +85,7 @@ export function Img({src = "", href, imgClassName, imgStyle, disabled, placehold
                     </button>
                 </div>
             }
+            {children}
         </div>
     )
 }
