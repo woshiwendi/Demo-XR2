@@ -355,3 +355,4 @@ export function elapsedTime(start: Date): string {
 
     return elapsed
 }
+

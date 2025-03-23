@@ -73,7 +73,16 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
                     ...mesh,
                     ...meshParamsToTransform(mesh.params, {
                         position: new Vector3(state.meshes.length*1.5, 0, 0)
-                    })
+                    }),
+                    selected: {
+                        id: `${mesh.id}-selected`
+                    },
+                    unselected: {
+                        uvs: mesh.uvs,
+                        faces: mesh.faces,
+                        colors: mesh.colors,
+                        vertices: mesh.vertices,
+                    }
                 } as meshType
             ]
         })
@@ -191,25 +200,32 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         }
     },
 
-    computeSelected(id, objects, point) {
+    computeSelected(id, objects) {
         const state = get()
         const mesh = state.getMesh(id)
         
         const fioi = [objects[0]].reduce((prev: number[], {faceIndex: i}) => i? [...prev, i] : prev, []) // face indicies of interest
-                
+        
+        // TODO: setup adjaceny graph and use to find k nearest
+        // const kFioi = closestK(mesh.unselected.faces.map((face, i) => [i, face.map(i => mesh.unselected.vertices[i]).reduce((prev, curr) => prev.add(new Vector3(...curr)), new Vector3(0, 0, 0)).divideScalar(3).toArray()]), point, 2).map(a => a[0])
+        
+        // console.log(`[computeSelected] >> kFioi`, kFioi)
+        // console.log(`[computeSelected] >> fioi`, fioi)
+
         const n = mesh.selected.vertices?.length || 0
         const foi = fioi.map(i => mesh.unselected.faces[i]) // faces of interest
         const rFoi = foi.map((_, i) => [n + 3*i, n + 3*i + 1, n + 3*i + 2]) // remapped faces of interest 
         
         const vioi = foi.flat()
-        const kVioi = closestK(vioi.map(i => [i, mesh.unselected.vertices[i]]), point, 1).map(a => a[0])
+        // const kVioi = closestK(vioi.map(i => [i, mesh.unselected.vertices[i]]), point, 1).map(a => a[0])
         const voi = foi.map(face => face.map(i => mesh.unselected.vertices[i])).flat() // verticies of interest
-        
+
+        const uvoi = vioi.map(i => mesh.unselected.uvs[i]) // uvs of interest
         const coi = vioi.map(i => [1, 0, 0]) // colors of interest
         
         return {
-            uvs: [],
-            id: mesh.selected.id,
+            id: `${id}-selected`,
+            uvs: [...(mesh.selected.uvs || []), ...uvoi],
             faces: [...(mesh.selected.faces || []), ...rFoi],
             colors: [...(mesh.selected.colors || []), ...coi],
             vertices: [...(mesh.selected.vertices || []), ...voi],
@@ -220,8 +236,8 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         const state = get()
         const mesh = state.getMesh(id)
 
-        const fioi = [objects[0]].reduce((prev: number[], {faceIndex: i}) => i? [...prev, i] : prev, []) // face indicies of interest
-
+        const fioi = objects.reduce((prev: number[], {faceIndex: i}) => i? [...prev, i] : prev, []) // face indicies of interest
+        
         const m = 0
         const nfoi = mesh.unselected.faces.filter((_, i) => !fioi.includes(i)) // not faces of interest
         const rNfoi = nfoi.map((_, i) => [m + 3*i, m + 3*i + 1, m + 3*i + 2]) // remapped not faces of interest 
@@ -229,14 +245,15 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         const nvioi = nfoi.flat()
         const nvoi = nvioi.map(i => mesh.unselected.vertices[i]) // not verticies of interest
 
+        const nuvoi = nvioi.map(i => mesh.unselected.uvs[i]) // not uvs of interest
         const ncoi = nfoi.map(face => face.map(i => mesh.unselected.colors[i])).flat() // not colors of interest
         
         return {
-            id: id,
+            id,
+            uvs: [...nuvoi],
             faces: [...rNfoi],
             colors: [...ncoi],
             vertices: [...nvoi],
-            uvs: [],
         }
     },
 

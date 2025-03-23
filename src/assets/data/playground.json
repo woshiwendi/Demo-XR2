@@ -19,6 +19,13 @@
             "icon": "fa-solid fa-solid fa-up-right-and-down-left-from-center",
             "disabled": false,
             "wireframeOnly": false
+        },
+
+        "vertexSelector": {
+            "tooltip": "select faces",
+            "icon": "fa-solid fa-solid fa-circle-nodes",
+            "disabled": false,
+            "wireframeOnly": false
         }
     },
 
@@ -36,8 +43,6 @@
             "disabled": false,
             "wireframeOnly": false
         },
-
-        
 
         "vertexSelector": {
             "tooltip": "select vertices",

@@ -6,7 +6,9 @@
 
         "authOnly": true,
         "onStatus": ["ready"],
-        "onNodeTypes": ["mesh", "generatedImg"]
+        "onNodeTypes": ["mesh", "generatedImg"],
+
+        "tag": "button"
     },
 
     "re-run": {
@@ -16,7 +18,9 @@
 
         "authOnly": true,
         "onStatus": ["done"],
-        "onNodeTypes": ["mesh", "generatedImg"]
+        "onNodeTypes": ["mesh", "generatedImg"],
+
+        "tag": "button"
     },
 
     "download": {
@@ -26,7 +30,9 @@
 
         "authOnly": false,
         "onStatus": ["ready", "done"],
-        "onNodeTypes": ["mesh", "generatedImg"]
+        "onNodeTypes": ["mesh", "generatedImg"],
+
+        "tag": "button"
     },
 
     "caption": {
@@ -36,6 +42,20 @@
 
         "authOnly": true,
         "onStatus": ["ready", "static", "done"],
-        "onNodeTypes": ["img", "sketch", "generatedImg"]
+        "onNodeTypes": ["img", "sketch", "generatedImg"],
+
+        "tag": "button"
+    },
+
+    "open": {
+        "tooltip": "open",
+        "disabled": false,
+        "icon": "fa-solid fa-arrow-up-right-from-square",
+        
+        "authOnly": false,
+        "onStatus": ["done", "ready"],
+        "onNodeTypes": ["mesh"],
+
+        "tag": "a"
     }
 }

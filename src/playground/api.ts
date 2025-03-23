@@ -1,6 +1,6 @@
 // custom imports
 import { meshType, playgroundType } from "./types"
-import { constructUrl, defaultFetchHeaders } from "../utils"
+import { constructUrl, defaultFetchHeaders, getCookie } from "../utils"
 
 const playgroundUrl = `${process.env.REACT_APP_BACKEND_URL}/playground`
 
@@ -58,3 +58,17 @@ export async function initMesh(id: string): Promise<meshType> {
         selected: {id: `${id}-selected`},
     } as meshType
 } 
+
+export async function uploadMesh(pid: string, file: File): Promise<void> {
+    const data = new FormData()
+    data.set("mesh_file", file)
+
+    await fetch(constructUrl(`${playgroundUrl}/mesh/upload`, {pid}), {
+        method: "POST", 
+        credentials: "include",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: data
+    })
+}

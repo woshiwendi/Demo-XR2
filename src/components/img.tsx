@@ -61,7 +61,6 @@ export function Img({src = "", href, imgClassName, imgStyle, disabled, placehold
             }
 
             {!disabled && 
-                children ||
                 <div className="absolute img-previewer-actions">
                     <button 
                         className="filled-icon-button pointer" 

@@ -8,7 +8,7 @@ import { Modal, ModalProps } from "../components/modal";
 import { useShallow } from "zustand/shallow";
 
 // images 
-import sponjLogo from  "../assets/logo/sponj.svg"
+import {ReactComponent as SponjLogo3} from "../assets/logo/sponj_v3.svg"
 
 
 type SinginModalProps = ModalProps & {
@@ -21,7 +21,7 @@ export function SigninModal({open, className = "", ...props}: SinginModalProps) 
 
     return (
         <Modal open={typeof open === "boolean" ? open : true} {...props} className={`flex column align-center login-modal ${className}`}>
-            <img src={sponjLogo} style={{width: 100, margin: 0}}/>
+            <SponjLogo3 style={{width: 150, margin: 0, fill: 'var(--font-color-primary)'}}/>
             <h3 className="bold">Sign in to start creating!</h3>
             
             <span className="flex column" style={{width: "80%"}}>

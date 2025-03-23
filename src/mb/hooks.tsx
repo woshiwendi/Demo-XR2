@@ -78,7 +78,17 @@ export function useNodeActions() {
         captionNode(id)
     }
 
-    return { run, download, caption }
+    const getHref = (id: string) => {
+        const node = find<nodeType>(nodes, {id}, ['id'])
+        switch (node?.type) {
+            case "mesh":
+                return node.data.playground? `/${uid || "anon"}/playground/${node.data.playground.id}` : undefined
+            default:
+                return
+        }
+    }
+
+    return { run, download, caption, getHref }
 }
 
 export function useToolbar() {

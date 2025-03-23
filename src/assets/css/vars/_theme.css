@@ -32,18 +32,18 @@
     --controls-width: 200px;
     --panel-width: 200px;
 
-    --primary: rgb(215, 69, 79, 1);
-    --secondary: rgb(215, 69, 79, 0.8);
+    --primary: rgb(42, 203, 179);
+    --secondary: rgb(42, 203, 179, 0.8);
     --tertiary: #3E3E3E;
     --quaternary: #E1E1E1;
 
-    --error: #ef5050;
-    --success: #55dd99;
+    --error: rgb(255, 59, 0);
+    --success: #2acbb3;
 
     --placeholder-color: #515151;
 
-    --node-color-txt: rgb(253, 141, 125, 1);
-    --node-title-color-txt: rgb(253, 141, 125, 1);
+    --node-color-txt: rgb(255, 59, 0, 0.8);
+    --node-title-color-txt: rgb(255, 59, 0, 0.8);
 
     --node-color-img: var(--node-color-txt);
     --node-title-color-img: var(--node-title-color-txt);
@@ -51,16 +51,16 @@
     --node-color-sketch: var(--node-color-txt);
     --node-title-color-sketch: var(--node-title-color-txt);
 
-    --node-title-color-generatedImg: rgb(0, 212, 187, 1);
+    --node-title-color-generatedImg: rgb(42, 203, 179, 0.8);
     
     --node-title-color-mesh: var(--node-title-color-generatedImg);
 
     --node-font-color-comment: #2B2B2B;
-    --node-color-comment: rgb(255, 217, 102, 1);
+    --node-color-comment: rgb(255, 213, 25);
     --node-color-comment-anon: rgb(143, 146, 161, 1);
     
     --node-color-comment-viewer: rgb(188, 242, 253);
-    --node-color-comment-owner: rgb(255, 217, 102, 1);
+    --node-color-comment-owner: rgb(255, 213, 25, 0.8);
     --node-color-comment-editor: rgb(195, 253, 170);
 
     --node-title-color-comment: var(--node-color-comment);

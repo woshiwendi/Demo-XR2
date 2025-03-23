@@ -12,6 +12,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import { generateUUID } from 'three/src/math/MathUtils';
 import { ThreeEvent, useFrame, useThree, MeshProps, useLoader } from '@react-three/fiber';
 import { DoubleSide, Raycaster, Vector2, Mesh, Intersection, Object3D, Object3DEventMap, Material } from 'three';
+import { useCursor } from './hooks';
+
+// static imports 
+import { ReactComponent as CircleCursor } from '../assets/cursors/circle-outline.svg'
 
 export type XSegmentProps = MeshProps & {
     name?: string
@@ -20,7 +24,7 @@ export type XSegmentProps = MeshProps & {
     onVerticesSelect?: (objects: Intersection<Object3D<Object3DEventMap>>[], point: number[]) => void
 }
 
-export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], faces = [], material, status, ...segment}, name, ref, autoRotate, onVerticesSelect,...props}: XSegmentProps) {
+export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], faces = [], material, status, ...segment}, name, ref, autoRotate, onVerticesSelect, onClick, ...props}: XSegmentProps) {
     const segmentRef = useRef<Mesh>(null!)
 
     const mtlLoader = new MTLLoader()
@@ -56,19 +60,21 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
         }
     })
     const { camera, scene } = useThree((state) => ({ camera: state.camera, scene: state.scene }))
-  
+    const { set: setCursor } = useCursor()
+
     const selectVertices = (event: ThreeEvent<PointerEvent | MouseEvent>) => {
         const mouse = new Vector2()
         const raycaster = new Raycaster()
         
         mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
         raycaster.setFromCamera( mouse.clone(), camera );   
-
-        const objects = raycaster.intersectObject(segmentRef.current)
-
+        
+        const objects = raycaster.intersectObject(segmentRef.current, false)
         const iPoint = segmentRef.current.worldToLocal(objects[0].point) // intersection point
         if (!iPoint) return
+        
         onVerticesSelect?.(objects, [iPoint.x, iPoint.y, iPoint.z])
     }
 
@@ -94,6 +100,11 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
                 event.stopPropagation()
                 switch (tool) {
                     case "vertexSelector":
+                        setCursor(
+                            <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9" fill="#fff" stroke="#000" stroke-width="0.25"></circle>
+                            </svg>
+                        )
                         if (event.shiftKey) {
                             selectVertices(event)
                         }
@@ -106,9 +117,11 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
                 }
             }}
 
+            onPointerLeave={() => setCursor("default")}
+
             onClick={(event: any) => {
                 if (locked) return
-                event.stopPropagation()
+                // event.stopPropagation()
                 switch (tool) {
                     case "vertexSelector":
                         if (event.shiftKey) {
@@ -131,6 +144,7 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
                         }
                         break 
                 }
+                onClick && onClick(event)
             }}
         >
             <bufferGeometry attach="geometry">

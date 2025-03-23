@@ -20,7 +20,7 @@ export function PlaygroundToolbar({...props}: PlaygroundToolbarProps) {
     const params = useParams()
 
     const uid = params.uid
-    const { selected, title, setTool, setMode, setLoading } = usePlaygroundStore(useShallow(selector))
+    const { selected, title, tool: selectedTool, setTool, setMode, setLoading } = usePlaygroundStore(useShallow(selector))
     
     return (
         <div className="playground-toolbar">
@@ -29,7 +29,7 @@ export function PlaygroundToolbar({...props}: PlaygroundToolbarProps) {
                     <button 
                         disabled={tool.disabled}
                         key={`${type}-create-btn`}
-                        className={`icon-button ${tool.disabled ? "disabled" : ""}`} 
+                        className={`icon-button ${tool.disabled ? "disabled" : ""} ${selectedTool === type ? "active" : ""}`} 
                         onClick={() => {
                             setTool(type as playgroundToolType)
 

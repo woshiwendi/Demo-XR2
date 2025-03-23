@@ -35,7 +35,7 @@ export default function XCanvas({fog = true, disable = false, mode = "mesh", mes
             camera={{position: [-3, 2.5, 4], fov: 75}}
             {...props}
         >
-            <ambientLight intensity={1}/>
+            <ambientLight intensity={2}/>
             <directionalLight castShadow intensity={1} position={[0, 2, 2]} />
 
             {!disable && 

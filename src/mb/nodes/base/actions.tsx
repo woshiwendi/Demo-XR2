@@ -24,7 +24,7 @@ type NodeActionsProps = JSX.IntrinsicElements["div"] & {
 }
 
 export default function NodeActions({id, type, status, mode, className = "", ...props}: NodeActionsProps) {
-    const { run, download, caption } = useNodeActions()
+    const { run, download, caption, getHref } = useNodeActions()
     
     const { perms, updateNode } = useMoodboardStore(useShallow(selector))
     const { id: uid, isAuthenticated } = useUserStore(useShallow(userSelector))
@@ -41,7 +41,7 @@ export default function NodeActions({id, type, status, mode, className = "", ...
     return (
         <div className={`node-actions flex align-center justify-between ${className}`}>
             <div>
-                {Object.entries(actions).map(([action, {icon, tooltip, disabled: off, onStatus, onNodeTypes, authOnly}], i) => {
+                {Object.entries(actions).map(([action, {icon, tooltip, disabled: off, onStatus, onNodeTypes, authOnly, tag}], i) => {
                     const margin = "0 5px 0"
                     const isEditor = perms?.isOwner || perms?.isEditor
                     const disabled = off || ((!isAuthenticated || !isEditor) && authOnly) 
@@ -68,16 +68,25 @@ export default function NodeActions({id, type, status, mode, className = "", ...
                     }
      
                     return (status && onStatus.includes(status) && onNodeTypes.includes(type)) ?
-                        <NodeActionButton 
-                            tooltip={tooltip}
-                            onClick={onClick}
-                            disabled={disabled}
-                            icon={icon as IconProp}
-                            key={`node-${id}-${action}-btn`}
-                            style={{padding: 0, margin: margin}}
-                            className={`icon-button ${disabled ? "disabled" : ""}`} 
-                        />
-                        : null
+                        tag === "a" ?
+                            <NodeActionLink 
+                                tooltip={tooltip}
+                                href={getHref(id)}
+                                icon={icon as IconProp}
+                                key={`node-${id}-${action}-btn`}
+                                style={{padding: 0, margin: margin}}
+                            /> :
+                        tag === "button" ?
+                            <NodeActionButton 
+                                tooltip={tooltip}
+                                onClick={onClick}
+                                disabled={disabled}
+                                icon={icon as IconProp}
+                                key={`node-${id}-${action}-btn`}
+                                style={{padding: 0, margin: margin}}
+                                className={`icon-button ${disabled ? "disabled" : ""}`} 
+                            />
+                        : null : null   
                 })}
             </div>
 
@@ -122,5 +131,28 @@ function NodeActionButton({icon, tooltip, onClick, className = "", ...props}: No
             <FontAwesomeIcon icon={icon} />
             <span className="tooltip-bottom">{tooltip}</span>
         </button>
+    )
+}
+
+type NodeActionLinkProps = JSX.IntrinsicElements["a"] & {
+    icon: IconProp
+    tooltip?: string
+}
+
+function NodeActionLink({icon, tooltip, style, ...props}: NodeActionLinkProps) {
+    return (
+        <a 
+            {...props}
+
+            target="_blank"
+            className="icon-button pointer" 
+            style={{
+                ...style,
+                textDecoration: "none"
+            }}
+        >
+            <FontAwesomeIcon icon={icon} />
+            <span className="tooltip-bottom">{tooltip}</span>
+        </a>
     )
 }

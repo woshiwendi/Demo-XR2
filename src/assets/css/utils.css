@@ -82,8 +82,16 @@
         background-color: transparent;
     }
 
+    .icon-button.active > svg {
+        color: var(--primary);
+    }
+
     .icon-button:hover {
         background-color: var(--bg-primary);
+    }
+
+    .icon-button:not(.disabled):hover > svg {
+        color: var(--primary);
     }
 
     .icon-button > svg, .filled-icon-button > svg {
@@ -111,7 +119,7 @@
         margin-top: 30px;
     }
 
-    button:hover .tooltip, button:hover .tooltip-bottom {visibility: visible;}
+    button:hover .tooltip, button:hover .tooltip-bottom, a:hover .tooltip-bottom, a:hover .tooltip {visibility: visible;}
 
     .loader {
         position: absolute;

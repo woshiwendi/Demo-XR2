@@ -66,7 +66,6 @@ export default function Playground(props: PlaygroundProps) {
                 meshes[i] = await initMesh(meshes[i].id)
                 addMesh(meshes[i])
             }
-            // addMesh(meshes[0])
             setLoading({on: false, progressText: undefined})
         }
     }

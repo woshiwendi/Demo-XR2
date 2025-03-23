@@ -53,32 +53,21 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
     const sTransform = useRef<meshTransformType>(extractMeshTransform(mesh))
     
     const { computeSelected, computeUnselected, updateMesh } = usePlaygroundStore(useShallow(selector))
+    console.debug(`[XMesh] >> rendering ${selectedMesh.id}...`)
 
     return (
         <group name={id} {...props}>
-            <group 
-                name={selectedMesh.id}
-            >
-                <XSegment 
-                    segment={{...selectedMesh, status} as meshType}
-                    onUpdate={event => {
-                        sTransform.current = getMeshTransform(event)
-                    }}
-
-                    onPointerMissed={event => {}}
-                />
-            </group>
             <group>
                 <XSegment 
                     segment={{...unselectedMesh, status} as meshType}
-                    onVerticesSelect={(objects, point) => {
-                        const selected = computeSelected(id, objects, point)
+                    onVerticesSelect={(objects) => {
+                        const selected = computeSelected(id, objects)
                         const unselected = computeUnselected(id, objects)
 
-                        updateMesh(id, {selected, unselected})
+                        updateMesh(id, {selected})
 
                         setSelectedMesh(selected)
-                        setUnselectedMesh(unselected)
+                        // setUnselectedMesh(unselected)
                     }}
                     
                     onUpdate={event => {
@@ -90,6 +79,18 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
 
                         updateMesh(id, {params: { scale, position, rotation }})
                     }}
+                />
+            </group>
+            <group 
+                name={selectedMesh.id}
+            >
+                <XSegment 
+                    segment={{...selectedMesh, status} as meshType}
+                    onUpdate={event => {
+                        sTransform.current = getMeshTransform(event)
+                    }}
+
+                    onPointerMissed={event => {}}
                 />
             </group>
         </group>

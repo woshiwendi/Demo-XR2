@@ -29,7 +29,7 @@ export interface PlaygroundState extends BaseState, SaveState {
     updateSegment: (id: string, parent: meshType, data: Partial<meshType>) => meshType | undefined
     onSegment: (id: string, parent: meshType, callback: (parent: meshType, mesh?: meshType) => meshType | undefined) => meshType | undefined
 
-    computeSelected: (id: string, objects: Intersection<Object3D<Object3DEventMap>>[], point: number[]) => meshJsonType
+    computeSelected: (id: string, objects: Intersection<Object3D<Object3DEventMap>>[]) => meshJsonType
     computeUnselected: (id: string, objects: Intersection<Object3D<Object3DEventMap>>[]) => meshJsonType
     
     setMode: (mode: playgroundModeType) => void
