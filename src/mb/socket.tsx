@@ -11,7 +11,7 @@ import { useShallow } from "zustand/shallow"
 
 export default function useSocket() {
     const { id: uid } = useUserStore(useShallow(userSelector))
-    const { nodes, updateNode, updateNodeData, init, addNode, perms } = useMoodboardStore(useShallow(selector))
+    const { id: mid, nodes, updateNode, updateNodeData, init, addNode, perms } = useMoodboardStore(useShallow(selector))
 
     const socket = useRef<WebSocket>()
 
@@ -31,7 +31,7 @@ export default function useSocket() {
                         }
                         break
                     case "moodboardUpdate":
-                        if (data) init(data)
+                        if (data && data.id === mid) init(data)
                         break
                     case "nodeAdd":
                         if (data) addNode(data, data.status, data.owner, false)
