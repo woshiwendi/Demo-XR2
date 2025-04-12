@@ -103,15 +103,8 @@ export default function Moodboard({...props}: MoodboardProps) {
             {loading.on && <LoadingBar progressText={loading.progressText} style={{top: "var(--nav-top)"}}/>}
             <DefaultNav 
                 user={user} 
-                style={{zIndex: 1, right: 'var(--nav-left)', left: "auto"}}
-            >
-                <button 
-                    className="mb-save-btn"
-                    onClick={() => {copyToClipboard(window.location.href)}}
-                >
-                    Share
-                </button>
-            </DefaultNav>
+                style={{zIndex: 1}}
+            />
             <ReactFlow
                 fitView
                 panOnScroll
@@ -131,7 +124,7 @@ export default function Moodboard({...props}: MoodboardProps) {
                 }}
                 className="validationflow"
             >
-                <MiniMap position="top-left"/>
+                <MiniMap position="bottom-left"/>
                 <Controls position="bottom-right"/>
                 <Background variant={BackgroundVariant.Dots} />
             </ReactFlow>

@@ -105,15 +105,8 @@ export default function Playground(props: PlaygroundProps) {
             {/* Playground Nav */}
             <DefaultNav 
                 user={user} 
-                style={{zIndex: 1, right: 'var(--nav-left)', left: "auto"}}
-            >
-                <button 
-                    className="mb-save-btn"
-                    onClick={async () => {}}
-                >
-                    Share
-                </button>
-            </DefaultNav>   
+                style={{zIndex: 1}}
+            />  
             
             <ModeControls/>
             <PlaygroundPanel />

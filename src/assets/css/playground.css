@@ -36,9 +36,9 @@
         padding: 10px 10px 10px 15px;
         width: calc(var(--panel-width));
         background: var(--bg-secondary);
-        top: calc(2* var(--nav-top) + 29px);
-        border-radius: var(--btn-border-radius);
-        height: calc(100% - 2*var(--nav-top) - 29px - 10px - 20px - 15px);
+        top: calc(var(--nav-top) + 102px);
+        border-radius: var(--border-radius);
+        height: calc(100% - var(--nav-top) - 102px - 10px - 20px - 15px);
     }
 
     .mesh-layers-container {
@@ -81,5 +81,12 @@
 
     .playground-toolbar > .icon-button {
         width: 39px;
+    }
+
+    .playground-toolbar-controls {
+        left: 50%;
+        position: absolute;
+        transform: translateX(-50%);
+        top: calc(3.5*var(--nav-top) + 28px + 38px);
     }
 }
