@@ -26,8 +26,21 @@ export default function DefaultNav({user, data = [], ...props}: DefaultNavProps)
         <>
         <Nav {...props}>
             <header>
-                <a href={`/${id}`} className="flex align-center no-underline">
-                    <div className="icon-small"></div>
+                <a 
+                    href={`/${id}`} 
+                    className="flex align-center no-underline" 
+                    onClick={event => {
+                        if (window.location.pathname === `/${id}`) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        } 
+                    }}
+                >
+                    <FontAwesomeIcon 
+                        style={{height: 20}}
+                        className="color-primary-on-hover"
+                        icon={"fa-solid fa-home-user" as IconProp} 
+                    />
                     <h3>{name}</h3>
                 </a>
                 {data.length == 0 && props.children}

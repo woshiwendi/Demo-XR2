@@ -30,7 +30,7 @@ export default function MeshNode({id, data: {title, src, playground}, ...props}:
         >
             <Img 
                 disabled 
-                src={playground?.meshes[0].gif} 
+                src={playground?.meshes[0]?.gif} 
                 placeholder="Generated mesh will appear here" style={{textAlign: "center"}}
             />
         </BaseNode>

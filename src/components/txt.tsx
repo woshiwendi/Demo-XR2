@@ -29,7 +29,9 @@ export default function Txt({text, children, onTypingStopped, onKeyUp, ...props}
         <textarea 
             {...props}
             ref={textAreaRef}
+            onKeyDown={event => event.stopPropagation()}
             onKeyUp={event => {
+                event.stopPropagation()
                 if (event.code === "Enter") {
                     setRows(rows + 1)
                 }

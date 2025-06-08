@@ -1,0 +1,31 @@
+/***** Always True *****/
+@media only screen {
+    .action-button {
+        right: 5px;
+        margin-top: 15px;
+        background: none;
+        position: absolute;
+    }
+
+    .action-button:hover > svg {
+        color: var(--primary);
+    }
+
+    .action-button-wrapper textarea {
+        width: 100%;
+        height: 100%;
+        border: none;
+        padding: 10px;
+        resize: none;
+        outline: none;
+        max-height: 75px;
+        border-radius: var(--btn-border-radius-sm);
+    }
+
+    .action-button-wrapper textarea::placeholder {
+        color: var(--font-color-secondary);
+    }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+}

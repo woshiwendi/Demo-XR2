@@ -4,32 +4,56 @@
             "tooltip": "translate",
             "icon": "fa-solid fa-up-down-left-right",
             "disabled": false,
-            "wireframeOnly": false
+            "wireframeOnly": false,
+            "settings": {}
         },
 
         "rotate": {
             "tooltip": "rotate",
             "icon": "fa-solid fa-rotate",
             "disabled": false,
-            "wireframeOnly": false
+            "wireframeOnly": false,
+            "settings": {}
         },
 
         "scale": {
             "tooltip": "scale",
             "icon": "fa-solid fa-solid fa-up-right-and-down-left-from-center",
             "disabled": false,
+            "wireframeOnly": false,
+            "settings": {}
+        },
+
+        "faceSelector": {
+            "tooltip": "select faces",
+            "icon": "fa-solid fa-solid fa-circle-nodes",
+            "disabled": false,
+            "wireframeOnly": false,
+            "settings": {
+                "size": 16
+            }
+        }
+    },
+
+    "meshControls": {
+        "chat": {
+            "tooltip": "chat",
+            "title": "Chat History",
+            "icon": "fa-solid fa-comment",
+            "disabled": false,
             "wireframeOnly": false
         },
 
-        "vertexSelector": {
-            "tooltip": "select faces",
-            "icon": "fa-solid fa-solid fa-circle-nodes",
+        "settings": {
+            "tooltip": "settings",
+            "title": "Mesh Settings",
+            "icon": "fa-solid fa-gear",
             "disabled": false,
             "wireframeOnly": false
         }
     },
 
-    "meshControls": {
+    "tmp": {
         "stylize": {
             "tooltip": "sponj ai stylize",
             "icon": "fa-solid fa-wand-magic-sparkles",
@@ -44,8 +68,8 @@
             "wireframeOnly": false
         },
 
-        "vertexSelector": {
-            "tooltip": "select vertices",
+        "faceSelector": {
+            "tooltip": "select faces",
             "icon": "fa-solid fa-solid fa-share-nodes",
             "disabled": false,
             "wireframeOnly": false

@@ -63,21 +63,21 @@ export function XControl({id, orbitRef}: XControlProps) {
                 // console.log(transformRef.current)
                 orbitRef.current.enabled = !event.value
             }
-            
+
             transformRef.current?.addEventListener("dragging-changed", callback)
             return () => transformRef.current?.removeEventListener("dragging-changed", callback)
         }
     })
 
     
-    const object = scene.getObjectByName(id)    
-    const meshTool: meshToolType | undefined = useMemo(() => ["rotate", "scale", "translate"].includes(tool)? tool as meshToolType : undefined, [tool])
-
+    const object = scene.getObjectByName(id)
+    const meshTool: meshToolType | undefined = useMemo(() => ["rotate", "scale", "translate"].includes(tool.type)? tool.type as meshToolType : undefined, [tool])
+    
     return (
         <>
         {meshTool && object &&
             <TransformControls 
-                object={object} 
+                object={object}
                 mode={meshTool} 
                 ref={transformRef}
             />

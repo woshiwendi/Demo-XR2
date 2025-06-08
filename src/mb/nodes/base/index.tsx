@@ -13,6 +13,8 @@ import { selector as userSelector } from "../../../user/state";
 import { useMemo } from "react";
 import { Position } from "@xyflow/react";
 import { useShallow } from "zustand/shallow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 type BaseNodeProps = JSX.IntrinsicElements["div"] & {
     id: string
@@ -43,6 +45,7 @@ export default function BaseNode({id, type, title, targets = [], sources = [], c
     const owner = useMemo(() => node?.owner, [node])
     
     const status = useMemo(() => node?.status, [nodes])
+    const error = status === "error"
     const isPending = status === "pending"
 
     return (
@@ -101,12 +104,12 @@ export default function BaseNode({id, type, title, targets = [], sources = [], c
                     position={Position.Left}
                 />
 
-                {!isPending && children}
-                {isPending && 
-                    <div 
-                        className="spinner" 
-                        // onClick={() => setNodeStatus(id, "ready")}
-                    ></div>
+                {!isPending && !error && children}
+                {isPending && <div className="spinner" ></div>}
+                {error &&
+                    <div className="backdrop error align-text-center">
+                        <FontAwesomeIcon icon={"fa-solid fa-triangle-exclamation" as IconProp}/>
+                    </div>
                 }
 
                 <NodeHandle 

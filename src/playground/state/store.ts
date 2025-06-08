@@ -1,15 +1,15 @@
 // custom imports
-import { closestK, meshParamsToTransform } from "../utils"
-import { meshType } from "../types"
 import { PlaygroundState } from "."
+import { updateMesh } from "../api"
 import { MeshNotFound } from "../errors"
-import { equals, filter, find, update } from "../../utils"
+import { baseState } from "../../state/store"
+import { closestK, meshParamsToTransform } from "../utils"
+import { equals, filter, find, insert, update } from "../../utils"
+import { chatType, meshType, playgroundToolType } from "../types"
 
 // third party
 import { create } from "zustand"
 import { Euler, Quaternion, Vector3 } from "three"
-import { baseState } from "../../state/store"
-import { editMesh } from "../api"
 
 export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
     ...baseState<PlaygroundState>(set, get),
@@ -18,7 +18,8 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
     title: "",
     meshes: [],
     mode: "mesh",
-    tool: "translate",
+    chats: new Map<string, chatType>(),
+    tool: {type: "translate"} as playgroundToolType,
 
     init: (playground) => {
         set({...playground})
@@ -27,16 +28,52 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
     getMesh(id) {
         const state = get()
         let mesh = find<meshType>(state.meshes, {id}, ['id'])
-
-        if (mesh) {
-            return mesh
-        } else {
-            for (const parent of state.meshes) {
-                mesh = state.getSegment(id, parent)
-                if (mesh) return mesh
+        try {
+            if (mesh) {
+                return mesh
+            } else {
+                for (const parent of state.meshes) {
+                    mesh = state.getSegment(id, parent)
+                    if (mesh) return mesh
+                }
             }
+        } catch (error) {
+            console.error(`[getMesh] >>`, error)
         }
         throw new MeshNotFound(id)
+    },
+
+    getChat(meshId) {
+        const state = get()
+        
+        if (state.chats.has(meshId)) {
+            return state.chats.get(meshId)!
+        }
+
+        const chat: chatType = []
+        let mesh: meshType
+
+        try {
+            mesh = state.getMesh(meshId)
+        } catch (error) {
+            if (error instanceof MeshNotFound) {
+                return []
+            } else {
+                throw error
+            }
+        }
+
+        // Legacy meshes do not have geo
+        if (mesh.geo) {
+            if (mesh.geo.systemResponse) {
+                chat.unshift({meshId, message: mesh.geo!.systemResponse!, sender: "system"})
+            }
+            chat.unshift({meshId, message: mesh.geo!.prompt, sender: "user"})
+        }
+
+        if (mesh.prev) {
+            return [...state.getChat(mesh.prev.id), ...chat]
+        } return chat
     },
 
     getSegment(id, parent) {
@@ -65,7 +102,8 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         }
 
         state.setLoading({on: true, progressText: "adding mesh..."})
-        
+        console.debug(`[addMesh] (mesh) >>`, mesh)  
+
         set({
             meshes: [
                 ...state.meshes, 
@@ -129,18 +167,23 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         })
     },
 
-    updateMesh: async (id, data, save = true) => {
+    updateMeshParams: (id, params, save = true) => {
+        return get().updateMesh(
+            id, 
+            {params}, 
+            save, 
+            (mesh, params) => equals(mesh, params, ['params.scale', 'params.position', 'params.rotation'])
+        )
+    },
+
+    updateMesh: async (id, data, save = true, isUpdated = undefined) => {
         const state = get()
         let mesh = find<meshType>(state.meshes, {id}, ['id'])
         
         if (mesh) {
-            if (equals(mesh, data, ['params.scale', 'params.position', 'params.rotation'])) {
-                console.debug(`[updateMesh] >> mesh is already updated...`)
-                return
-            }
-            
+            if (isUpdated && isUpdated(mesh, data)) return 
             state.setLoading({on: true, progressText: "updating mesh..."})
-            console.debug(`[updateMesh] >> updating ${id}...`)
+            // console.debug(`[updateMesh] >> updating ${id}...`)
 
             set({
                 meshes: update(state.meshes, {id}, ['id'], data)
@@ -151,14 +194,14 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         } else {
             const segment = state.getMesh(id)
             if (equals(segment, data, ['params.scale', 'params.position', 'params.rotation'])) {
-                console.debug(`[updateMesh] >> mesh is already updated...`)
+                // console.debug(`[updateMesh] >> mesh is already updated...`)
                 return
             }
 
             for (const parent of state.meshes) {
                 mesh = state.updateSegment(id, parent, data)
                 if (mesh) {
-                    console.debug(`[updateMesh] >> updating ${id}...`)
+                    // console.debug(`[updateMesh] >> updating ${id}...`)
                     set({
                         meshes: update(state.meshes, {id}, ['id'], mesh)
                     })
@@ -169,7 +212,7 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
 
         if (mesh && save) {
             state.setLoading({on: true, progressText: "saving mesh..."})
-            await editMesh(id, data)
+            await updateMesh(id, data)
             state.setLoading({on: false, progressText: undefined})
         }
     },
@@ -186,7 +229,7 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
 
     onSegment: (id, parent, callback) => {
         const state = get()
-
+        
         let mesh = find<meshType>(parent.segments, {id}, ['id']) 
         if (!mesh) {
             for (const segment of parent.segments) {
@@ -207,6 +250,7 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         const fioi = [objects[0]].reduce((prev: number[], {faceIndex: i}) => i? [...prev, i] : prev, []) // face indicies of interest
         
         // TODO: setup adjaceny graph and use to find k nearest
+        // TODO: use face indicies 
         // const kFioi = closestK(mesh.unselected.faces.map((face, i) => [i, face.map(i => mesh.unselected.vertices[i]).reduce((prev, curr) => prev.add(new Vector3(...curr)), new Vector3(0, 0, 0)).divideScalar(3).toArray()]), point, 2).map(a => a[0])
         
         // console.log(`[computeSelected] >> kFioi`, kFioi)

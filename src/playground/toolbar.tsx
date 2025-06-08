@@ -1,10 +1,10 @@
 // custom imports
-
-// static data
 import { selector } from "./state"
 import { segmentMesh } from "./api"
 import { playgroundToolType } from "./types"
 import { usePlaygroundStore } from "./state/store"
+
+// static data
 import playgroundData from "../assets/data/playground.json"
 
 // third party
@@ -29,9 +29,9 @@ export function PlaygroundToolbar({...props}: PlaygroundToolbarProps) {
                     <button 
                         disabled={tool.disabled}
                         key={`${type}-create-btn`}
-                        className={`icon-button ${tool.disabled ? "disabled" : ""} ${selectedTool === type ? "active" : ""}`} 
+                        className={`icon-button ${tool.disabled ? "disabled" : ""} ${selectedTool.type === type ? "active" : ""}`} 
                         onClick={() => {
-                            setTool(type as playgroundToolType)
+                            setTool({type: type, settings: tool.settings} as playgroundToolType)
 
                             if (tool.wireframeOnly) {
                                 setMode("wireframe")

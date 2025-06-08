@@ -28,7 +28,9 @@ export function PlaygroundPanel({...props}: PlaygroundPanelProps) {
                 /> */}
             </div>
             <div className='mesh-layers-container'>
-                {meshes.map(mesh => <MeshLayers key={`${mesh.id}-layers`} mesh={mesh} />)}
+                {meshes.map(mesh => {
+                    return mesh.isCurrent && <MeshLayers key={`${mesh.id}-layers`} mesh={mesh} />
+                })}
             </div>
         </div>
     )

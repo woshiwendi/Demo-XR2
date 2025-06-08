@@ -30,15 +30,12 @@
     }
 
     .playground-panel { 
-        margin-top: 10px;
+        top: 0;
         position: absolute;
-        left: var(--nav-left);
+        height: calc(100% - 20px);
         padding: 10px 10px 10px 15px;
         width: calc(var(--panel-width));
         background: var(--bg-secondary);
-        top: calc(var(--nav-top) + 102px);
-        border-radius: var(--border-radius);
-        height: calc(100% - var(--nav-top) - 102px - 10px - 20px - 15px);
     }
 
     .mesh-layers-container {

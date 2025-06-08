@@ -104,7 +104,7 @@ export function isLocked(status: meshStatusType): boolean {
 export async function meshDownloadFiles(mesh: meshType): Promise<downloadFileType[]> {
     const files: downloadFileType[] = []
     files.push({url: mesh.url, title: mesh.title, ext: "obj"})
-    files.push({url: mesh.gif, title: mesh.title, ext: "png"})
+    files.push({url: mesh.gif, title: mesh.title, ext: "gif"})
 
     if (mesh.params?.mtlUrl) {
         files.push({url: mesh.params.mtlUrl, title: "material", ext: "mtl"})

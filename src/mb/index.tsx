@@ -111,6 +111,8 @@ export default function Moodboard({...props}: MoodboardProps) {
                 nodes={nodes}
                 edges={edges}
                 {...flowProps}
+
+                maxZoom={50}
                 minZoom={0.001}
                 selectionOnDrag
                 panOnDrag={[1, 2]}

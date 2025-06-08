@@ -1,7 +1,7 @@
 // custom imports
 import { BaseState } from "../../state"
 import { loadingType } from "../../types"
-import { meshType, playgroundType, playgroundModeType, playgroundToolType, meshJsonType } from "../types"
+import { meshType, playgroundType, playgroundModeType, playgroundToolType, meshJsonType, chatType, meshParamsType } from "../types"
 
 // third party 
 import { Intersection, Object3D, Object3DEventMap } from "three"
@@ -16,13 +16,17 @@ export interface PlaygroundState extends BaseState, SaveState {
     meshes: meshType[]
     mode: playgroundModeType
     tool: playgroundToolType 
+    chats: Map<string, chatType> // caches mesh chats
 
     init: (playground: playgroundType) => void
 
     getMesh: (id: string) => meshType
+    getChat: (meshId: string) => chatType 
+
     deleteMesh: (id: string) => void
     addMesh: (mesh: meshType) => void
-    updateMesh: (id: string, data: Partial<meshType>, save?: boolean) => void
+    updateMeshParams: (id: string, params: Partial<meshParamsType>, save?: boolean) => void
+    updateMesh: (id: string, data: Partial<meshType>, save?: boolean, isUpdated?: (mesh: meshType, data: Partial<meshType>) => boolean) => void
 
     getSegment: (id: string, parent: meshType) => meshType | undefined
     deleteSegment: (id: string, parent: meshType) => meshType | undefined
@@ -41,6 +45,7 @@ export const selector = (state: PlaygroundState) => ({
     mode: state.mode,
     tool: state.tool,
     title: state.title,
+    chats: state.chats,
     meshes: state.meshes,
     loading: state.loading,
     selected: state.selected,
@@ -48,9 +53,12 @@ export const selector = (state: PlaygroundState) => ({
     init: state.init,
     getMesh: state.getMesh,
 
+    getChat: state.getChat,
+
     addMesh: state.addMesh,
     deleteMesh: state.deleteMesh,
     updateMesh: state.updateMesh,
+    updateMeshParams: state.updateMeshParams,
 
     select: state.select,
     unselect: state.unselect,

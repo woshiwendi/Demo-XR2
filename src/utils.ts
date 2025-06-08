@@ -131,6 +131,10 @@ export function findAll<T>(A: any[], a: any, keys: string[], aKeys?: string[], c
     return A.filter(Ai => check(equals(Ai, a, keys, aKeys)))
 }
 
+export function insert<T>(A: T[], B: T[], i: number): T[] {
+    return [...A.slice(0, i), ...B, ...A.slice(i, A.length)]
+}
+
 /**
  * Filters an array based on the comparison of specified object properties.
  * 

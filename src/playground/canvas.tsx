@@ -1,11 +1,15 @@
 // custom imports
 import { ThemeContext } from "..";
+import { selector } from "./state";
 import { SMesh, XMesh } from "./mesh";
+import { usePlaygroundStore } from "./state/store";
 import { meshType, playgroundModeType } from "./types";
 import { CanvasControls } from "./controls/canvasControls";
 
 // third party
+import * as THREE from "three";
 import { Suspense, useContext } from "react";
+import { useShallow } from "zustand/shallow";
 import { Canvas, CanvasProps } from "@react-three/fiber";
 import { ContactShadows, Plane, SoftShadows } from "@react-three/drei";
 
@@ -28,14 +32,18 @@ export default function XCanvas({fog = true, disable = false, mode = "mesh", mes
     // all mesh editing happened here and parent will not know! when the mesh updates, we need to update our local mesh as well 
     // resolving conflicts as necessary
 
+    const { getMesh } = usePlaygroundStore(useShallow(selector))
+
     return (
         <Canvas 
             // shadows 
+            {...props}
+            id="playground-canvas"
             className='canvas height-100' 
             camera={{position: [-3, 2.5, 4], fov: 75}}
-            {...props}
+            onCreated={({ gl }) => { gl.toneMapping = THREE.LinearToneMapping }}
         >
-            <ambientLight intensity={2}/>
+            <ambientLight intensity={1} />
             <directionalLight castShadow intensity={1} position={[0, 2, 2]} />
 
             {!disable && 
@@ -53,6 +61,7 @@ export default function XCanvas({fog = true, disable = false, mode = "mesh", mes
                 <group>
                     {meshes.map((mesh, i) => {
                         const {y = 0.5, z = 0, autoRotate = false} = meshProps || {}
+                        if (!mesh.isCurrent) return <></>
                         const MeshComp = mesh.segments.length > 0 ? SMesh : XMesh
                         
                         return (

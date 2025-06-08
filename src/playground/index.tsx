@@ -1,6 +1,7 @@
 // custom imports
 import XCanvas from "./canvas"
 import DefaultNav from "../nav"
+import useSocket from "./socket"
 import { PlaygroundPanel } from "./panel"
 import ModeControls from "./controls/mode"
 import { navStateType } from "../nav/types"
@@ -13,6 +14,7 @@ import { LoadingBar } from "../components/loading"
 import { MeshControls } from "./controls/meshControls"
 import { selector as playgroundSelector } from "./state"
 import { selector as userSelector } from "../user/state"
+import { PlaygroundToolbarControls } from "./controls/toolbarControls"
 
 // static data
 import navData from "../assets/data/nav.json"
@@ -24,6 +26,7 @@ import { useShallow } from "zustand/shallow"
 
 // css stylesheets
 import '../assets/css/playground.css'
+import { meshType } from "./types"
 
 type PlaygroundProps = JSX.IntrinsicElements["div"] & {
 }
@@ -34,7 +37,7 @@ export default function Playground(props: PlaygroundProps) {
     const {
         id, 
         mode,
-        // tool,
+        chats,
         title,
         meshes, 
         loading,
@@ -45,6 +48,7 @@ export default function Playground(props: PlaygroundProps) {
         addMesh, 
         deleteMesh,
         updateMesh,
+        updateMeshParams,
 
         setLoading,
 
@@ -53,7 +57,17 @@ export default function Playground(props: PlaygroundProps) {
     const [activeNav, setActiveNav] = useCustomState<navStateType>(navData.playground[0] as navStateType)
     
     const plid = params.plid
-    const socket = useRef<WebSocket>()
+    const socket = useSocket()
+
+    const loadMesh = async (mesh: meshType) => {
+        setLoading({on: true, progressText: `Loading Mesh ${mesh.title}...`})
+        if (mesh.isCurrent) {
+            addMesh(await initMesh(mesh.id))
+        } else {
+            addMesh(mesh)
+        }
+        setLoading({on: false, progressText: undefined})
+    }
 
     const initialzie = async () => {
         if (plid) {
@@ -63,36 +77,14 @@ export default function Playground(props: PlaygroundProps) {
             const meshes = (await getPlayground(plid)).meshes
             
             for (let i = 0; i < meshes.length; i++) {
-                meshes[i] = await initMesh(meshes[i].id)
-                addMesh(meshes[i])
+                loadMesh(meshes[i])
             }
-            setLoading({on: false, progressText: undefined})
+            // setLoading({on: false, progressText: undefined})
         }
     }
 
-    useEffect(() => { document.title = `${title} - Sponj3d` || "Sponj3d"}, [title])
-
-    useEffect(() => {
-        initialzie()
-        if (user.isAuthenticated) {
-            const sock = new WebSocket(`${process.env.REACT_APP_WS_URL}/user/${user.id}`)
-            sock.onmessage = (event) => {
-                const {type, mid, data} = JSON.parse(event.data)
-                switch (type) {
-                    case "meshUpdate":
-                        updateMesh(mid, data, false)
-                        break
-                    case "meshAdd":
-                        addMesh(data)
-                        break
-                    default:
-                        console.log(`[onmessage] >> got message of type ${type}`)
-                        break
-                }
-            }
-            socket.current = sock
-        }
-    }, [user.isAuthenticated])
+    useEffect(() => { document.title = `${title} - Sponj3d` || "Sponj3d"}, [title])    
+    useEffect(() => { initialzie() }, [user.isAuthenticated])
 
     useEffect(() => { user.init() }, [])
 
@@ -103,10 +95,10 @@ export default function Playground(props: PlaygroundProps) {
             <XCanvas mode={mode} meshes={meshes}><></></XCanvas>
 
             {/* Playground Nav */}
-            <DefaultNav 
+            {/* <DefaultNav 
                 user={user} 
                 style={{zIndex: 1}}
-            />  
+            />   */}
             
             <ModeControls/>
             <PlaygroundPanel />
@@ -114,6 +106,7 @@ export default function Playground(props: PlaygroundProps) {
 
             {selected.length === 1 && <MeshControls />}
             <PlaygroundToolbar />
+            <PlaygroundToolbarControls />
         </div>
     )
 }

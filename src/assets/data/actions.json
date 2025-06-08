@@ -17,7 +17,7 @@
         "icon": "fa-solid fa-rotate-right",
 
         "authOnly": true,
-        "onStatus": ["done"],
+        "onStatus": ["done", "error"],
         "onNodeTypes": ["mesh", "generatedImg"],
 
         "tag": "button"

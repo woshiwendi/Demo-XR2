@@ -1,18 +1,14 @@
-import { createRef, useState, useEffect } from "react";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { createRef, useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-type ImgProps = JSX.IntrinsicElements["div"] & {
-    href?: string
-    disabled?: boolean
+
+type useImageProps = {
     src?: string | File
-    placeholder?: string
-    imgClassName?: string
-    imgStyle?: React.CSSProperties
     onUpload?: (file?: File) => void
 }
 
-export function Img({src = "", href, imgClassName, imgStyle, disabled, placeholder, className = "", style, onUpload, children, ...props}: ImgProps) {
+function useImage({src, onUpload}: useImageProps) {
     const [name, setName] = useState<string>();
     const [img, setImg] = useState<string>();
 
@@ -36,6 +32,20 @@ export function Img({src = "", href, imgClassName, imgStyle, disabled, placehold
             setImg(src)
         }
     }, [src])
+
+    return {name, setName, img, setImg, inputRef, onChange}
+}
+
+type ImgProps = JSX.IntrinsicElements["div"] & useImageProps & {
+    href?: string
+    disabled?: boolean
+    placeholder?: string
+    imgClassName?: string
+    imgStyle?: React.CSSProperties
+}
+
+export function Img({src = "", href, imgClassName = "", imgStyle, disabled, placeholder, className = "", style, onUpload, children, ...props}: ImgProps) {
+    const {name, setName, img, setImg,inputRef, onChange} = useImage({src, onUpload})
     
     return (
         <div 
@@ -52,7 +62,7 @@ export function Img({src = "", href, imgClassName, imgStyle, disabled, placehold
                         <img src={img || ""} alt="uploaded" style={{...imgStyle}} className={`img ${imgClassName} ${!disabled ? "active" : ""}`}/> 
                     </a> 
                     :
-                    <img src={img || ""} alt="uploaded" style={{...imgStyle}} className={`img ${imgClassName} ${!disabled ? "active" : ""}`}/> 
+                    <img src={img || ""} style={{...imgStyle}} className={`img ${imgClassName} ${!disabled ? "active" : ""}`}/> 
                 : 
                 <>
                     {!disabled && <FontAwesomeIcon icon={"fa-upload" as IconProp}/>}

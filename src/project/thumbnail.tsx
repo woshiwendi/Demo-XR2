@@ -11,6 +11,7 @@ import { Link, LinkProps } from "react-router-dom";
 import contextMenuData from '../assets/data/context.json';
 
 type ProjectThumbnailProps = LinkProps & {
+    mbCount?: number
     disabled?: boolean
     onAdd?: () => void
     state?: navStateType
@@ -23,7 +24,7 @@ type ProjectThumbnailProps = LinkProps & {
     contStyle?: React.CSSProperties
 }
 
-export function ProjectThumbnail({disabled, project, className, mbStyle, mbClassName, onAdd, contStyle, contClassName, ...props}: ProjectThumbnailProps) {
+export function ProjectThumbnail({disabled, project, mbCount = 0, className, mbStyle, mbClassName, onAdd, contStyle, contClassName, ...props}: ProjectThumbnailProps) {
     return (
         <div 
             style={{...contStyle}}
@@ -31,7 +32,7 @@ export function ProjectThumbnail({disabled, project, className, mbStyle, mbClass
         >
             <Link className={`${className}`} {...props}>
                 <div className="project-thumbnail-mbs">
-                    {Array(4).fill(0).map((_, i) => {
+                    {Array(Math.min(project?.mbs.length || mbCount, 4)).fill(0).map((_, i) => {
                         return (
                             <MoodboardThumbnail 
                                 off

@@ -1,14 +1,67 @@
 /***** Always True *****/
 @media only screen {
     #mesh-controls { 
-        padding: 10px 10px 10px 15px;
+        top: 0;
+        right: 0;
+        height: 100%;
         position: absolute;
-        right: var(--nav-left);
-        margin-top: var(--nav-top);
-        width:  var(--controls-width);
-        top: calc(var(--nav-top) + 102px);
-        border-radius: var(--border-radius);
+        width: var(--controls-width);
         background-color: var(--bg-secondary);
+    }
+
+    #mesh-controls > .nav-panel > .icon-button:hover {
+        font-weight: bold;
+        border-radius: var(--btn-border-radius-sm);
+    }
+
+    #mesh-controls > .nav-panel > .icon-button.active {
+        font-weight: bold;
+        background-color: var(--bg-primary);
+        border-radius: var(--btn-border-radius-sm);
+    }
+
+    #mesh-controls > .nav-panel > .icon-button {
+        /* padding: 5px 20px; */
+        margin: 5px 2.5px;
+        color: var(--font-color-primary);
+        /* border-radius: 10px 10px 0 0; */
+        /* background-color: var(--bg-secondary); */
+    }
+
+    #mesh-controls .chat textarea {
+        background-color: var(--font-color-primary);
+        color: var(--bg-primary);
+    }
+
+    #mesh-controls .chat textarea::placeholder {
+        color: var(--bg-secondary);
+    }
+
+    #mesh-controls .chat > .message-user, 
+    #mesh-controls .chat > .message-system {
+        padding: 10px;
+        margin: 5px 0;
+        max-width: 65%;
+        width: fit-content;
+        border-radius: var(--btn-border-radius-sm);
+    }
+
+    #mesh-controls .chat > .message-user {
+        align-self: end;
+        background-color: var(--primary);
+    }
+
+    #mesh-controls .chat > .message-system {
+        color: var(--bg-primary);
+        background-color: var(--font-color-primary);
+    }
+
+    #mesh-controls .chat .action-button > svg {
+        color: var(--bg-primary);
+    }
+
+    #mesh-controls .chat .action-button:hover > svg {
+        color: var(--primary);
     }
 
     #controls > h1 {

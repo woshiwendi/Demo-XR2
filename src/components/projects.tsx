@@ -55,6 +55,7 @@ export default function Projects({...props}: ProjectsProps) {
             })}
 
             <ProjectThumbnail 
+                mbCount={4}
                 disabled={!isAuthenticated}
                 onAdd={async () => {
                     if (!uid) return

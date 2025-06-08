@@ -46,25 +46,28 @@ export function SMesh({mesh: {id, segments, ...mesh}, autoRotate, ...props}: XMe
 }
 
 export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...props}: XMeshProps) {
-    const [unselectedMesh, setUnselectedMesh] = useCustomState<meshJsonType>({...mesh, id})
-    const [selectedMesh, setSelectedMesh] = useCustomState<meshJsonType>({...mesh.selected, ...extractMeshTransform(mesh)})
+    const [unselectedMesh, setUnselectedMesh] = useCustomState<meshType>({...mesh, id})
+    const [selectedMesh, setSelectedMesh] = useCustomState<meshType>({...mesh.selected, ...extractMeshTransform(mesh)})
 
     const nTransform = useRef<meshTransformType>(extractMeshTransform(mesh))
     const sTransform = useRef<meshTransformType>(extractMeshTransform(mesh))
     
-    const { computeSelected, computeUnselected, updateMesh } = usePlaygroundStore(useShallow(selector))
-    console.debug(`[XMesh] >> rendering ${selectedMesh.id}...`)
+    const { computeSelected, computeUnselected, updateMeshParams, updateMesh } = usePlaygroundStore(useShallow(selector))
+    // console.debug(`[XMesh] >> rendering ${selectedMesh.id}...`)
 
     return (
-        <group name={id} {...props}>
-            <group>
+        <group {...props}>
+            <group 
+                name={id} 
+                position={mesh.position} 
+            >
                 <XSegment 
                     segment={{...unselectedMesh, status} as meshType}
-                    onVerticesSelect={(objects) => {
+                    onFacesSelect={(objects) => {
                         const selected = computeSelected(id, objects)
                         const unselected = computeUnselected(id, objects)
 
-                        updateMesh(id, {selected})
+                        // updateMesh(id, {selected})
 
                         setSelectedMesh(selected)
                         // setUnselectedMesh(unselected)
@@ -77,14 +80,16 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
                         const scale = nTransform.current.scale.toArray()
                         const rotation = new Euler().setFromQuaternion(nTransform.current.quaternion).toArray().slice(0, 3) as [number, number, number]
 
-                        updateMesh(id, {params: { scale, position, rotation }})
+                        updateMeshParams(id, { scale, position, rotation })
                     }}
                 />
             </group>
             <group 
                 name={selectedMesh.id}
+                position={selectedMesh.position}
             >
                 <XSegment 
+                    disabled
                     segment={{...selectedMesh, status} as meshType}
                     onUpdate={event => {
                         sTransform.current = getMeshTransform(event)

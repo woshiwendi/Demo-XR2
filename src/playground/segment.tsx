@@ -1,6 +1,7 @@
 // custom imports
 import { meshType } from './types';
 import { selector } from './state';
+import { useCursor } from './hooks';
 import { useCustomState } from '../utils';
 import { usePlaygroundStore } from './state/store';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
@@ -12,7 +13,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import { generateUUID } from 'three/src/math/MathUtils';
 import { ThreeEvent, useFrame, useThree, MeshProps, useLoader } from '@react-three/fiber';
 import { DoubleSide, Raycaster, Vector2, Mesh, Intersection, Object3D, Object3DEventMap, Material } from 'three';
-import { useCursor } from './hooks';
 
 // static imports 
 import { ReactComponent as CircleCursor } from '../assets/cursors/circle-outline.svg'
@@ -20,11 +20,12 @@ import { ReactComponent as CircleCursor } from '../assets/cursors/circle-outline
 export type XSegmentProps = MeshProps & {
     name?: string
     segment: meshType
+    disabled?: boolean
     autoRotate?: boolean
-    onVerticesSelect?: (objects: Intersection<Object3D<Object3DEventMap>>[], point: number[]) => void
+    onFacesSelect?: (objects: Intersection<Object3D<Object3DEventMap>>[], point: number[]) => void
 }
 
-export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], faces = [], material, status, ...segment}, name, ref, autoRotate, onVerticesSelect, onClick, ...props}: XSegmentProps) {
+export function XSegment({disabled, segment: {id, uvs = [], vertices = [], colors = [], faces = [], material, status, position, ...segment}, name, ref, autoRotate, onFacesSelect, onClick, ...props}: XSegmentProps) {
     const segmentRef = useRef<Mesh>(null!)
 
     const mtlLoader = new MTLLoader()
@@ -62,7 +63,7 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
     const { camera, scene } = useThree((state) => ({ camera: state.camera, scene: state.scene }))
     const { set: setCursor } = useCursor()
 
-    const selectVertices = (event: ThreeEvent<PointerEvent | MouseEvent>) => {
+    const selectFaces = (event: ThreeEvent<PointerEvent | MouseEvent>) => {
         const mouse = new Vector2()
         const raycaster = new Raycaster()
         
@@ -75,7 +76,7 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
         const iPoint = segmentRef.current.worldToLocal(objects[0].point) // intersection point
         if (!iPoint) return
         
-        onVerticesSelect?.(objects, [iPoint.x, iPoint.y, iPoint.z])
+        onFacesSelect?.(objects, [iPoint.x, iPoint.y, iPoint.z])
     }
 
     return (
@@ -98,15 +99,15 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
             onPointerOver={(event: any) => {
                 if (locked) return
                 event.stopPropagation()
-                switch (tool) {
-                    case "vertexSelector":
+                switch (tool.type) {
+                    case "faceSelector":
                         setCursor(
-                            <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="9" fill="#fff" stroke="#000" stroke-width="0.25"></circle>
+                            <svg xmlns="http://www.w3.org/2000/svg" width={tool.settings.size} height={tool.settings.size} viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9" fill="#fff" stroke="#000" strokeWidth="0.25"></circle>
                             </svg>
                         )
                         if (event.shiftKey) {
-                            selectVertices(event)
+                            selectFaces(event)
                         }
                         break 
                     case "scale":
@@ -120,14 +121,14 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
             onPointerLeave={() => setCursor("default")}
 
             onClick={(event: any) => {
-                if (locked) return
+                if (locked || disabled) return
                 // event.stopPropagation()
-                switch (tool) {
-                    case "vertexSelector":
+                switch (tool.type) {
+                    case "faceSelector":
                         if (event.shiftKey) {
-                            selectVertices(event)
+                            selectFaces(event)
                         }
-                        break 
+                        break
                     case "scale":
                     case "rotate":
                     case "translate":
@@ -167,16 +168,16 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
                     array={toFloat32Array(uvs)}
                 />
                 <bufferAttribute 
-                    itemSize={3} 
+                    itemSize={4} 
                     attach="attributes-color" 
-                    count={colors.length / 3} 
+                    count={colors.length / 4} 
                     array={selected.includes(id)? 
-                        toFloat32Array(new Array(colors.length).fill([1, 1, 0])) : toFloat32Array(colors)
+                        toFloat32Array(new Array(colors.length).fill([1, 1, 0, 1])) : toFloat32Array(colors)
                     }
                 />
             </bufferGeometry>
 
-            <meshPhongMaterial
+            <meshPhysicalMaterial
                 {...(mtl? Object.values(mtl)[0] : {})}
                 
                 needsUpdate 
@@ -184,7 +185,7 @@ export function XSegment({segment: {id, uvs = [], vertices = [], colors = [], fa
                 side={DoubleSide} 
                 attach={"material"}  
                 wireframe={mode === "wireframe"}
-                color={selected.includes(id) && tool !== "vertexSelector" ? "yellow" : undefined} 
+                color={selected.includes(id) && tool.type !== "faceSelector" ? "yellow" : undefined} 
             />
         </mesh>
     )
