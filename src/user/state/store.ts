@@ -15,6 +15,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
     init: async () => {
         const user = await getUser()
+        if (!user.id) { return get().signin("test@sponj3d.com", "TestUser2025:)") }
         set({...user})
     },
 
@@ -30,7 +31,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         })
 
         if (response.ok) {
-            set({ projects: [], id: "", name: "", email: "", isAuthenticated: false })
+            set({ id: "", name: "", email: "", isAuthenticated: false })
         } else {
             console.error("Failed to sign out")
         }

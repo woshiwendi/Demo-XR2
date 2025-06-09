@@ -1,6 +1,4 @@
 // custom imports
-import { useHomeStore } from "../home/state/store";
-import { selector as homeSelector } from "../home/state";
 
 // third party
 import { useShallow } from "zustand/shallow";
@@ -43,15 +41,12 @@ export default function Txt({text, children, onTypingStopped, onKeyUp, ...props}
 }
 
 export function CheckTyping(timeout: number = 500, onTypingStopped?: () => void) {
-    const { setLoading } = useHomeStore(useShallow(homeSelector))
-
     const typing = useRef(false)
     const timer = useRef<NodeJS.Timeout>()
 
     const checkTyping = () => {
         if (typing.current) {
             typing.current = false
-            setLoading({on: false, progressText: ""})
             if (timer.current) clearInterval(timer.current)
             timer.current = setTimeout(checkTyping, timeout)
         } else {
@@ -61,7 +56,6 @@ export function CheckTyping(timeout: number = 500, onTypingStopped?: () => void)
 
     const onUpdate = (callback?: () => void) => {
         typing.current = true
-        setLoading({on: true, progressText: "Saving..."})
         if (timer.current) clearInterval(timer.current)
             
         callback && callback()

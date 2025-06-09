@@ -265,7 +265,7 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         const voi = foi.map(face => face.map(i => mesh.unselected.vertices[i])).flat() // verticies of interest
 
         const uvoi = vioi.map(i => mesh.unselected.uvs[i]) // uvs of interest
-        const coi = vioi.map(i => [1, 0, 0]) // colors of interest
+        const coi = vioi.map(i => [1, 0, 0, 1]) // colors of interest
         
         return {
             id: `${id}-selected`,

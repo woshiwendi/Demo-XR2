@@ -1,5 +1,3 @@
-import { projectType } from "../project/types"
-
 export type userType = {
     id: string
     name: string
@@ -8,8 +6,6 @@ export type userType = {
 
     created_at?: string
     updated_at?: string
-
-    projects?: projectType[]
 }
 
 export type permsType = {

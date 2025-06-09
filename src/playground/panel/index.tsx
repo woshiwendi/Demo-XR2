@@ -1,24 +1,25 @@
 // custom imports
+import { uploadMesh } from '../api';
 import { selector } from '../state';
 import { MeshLayers } from './layers';
+import { Img } from '../../components/img';
+import { UploadMeshButton } from './buttons';
 import { usePlaygroundStore } from '../state/store';
 
 // third party
 import { useShallow } from 'zustand/shallow';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { UploadMeshButton } from './buttons';
-import { uploadMesh } from '../api';
 
 type PlaygroundPanelProps = JSX.IntrinsicElements['div'] & {
 }
 
-export function PlaygroundPanel({...props}: PlaygroundPanelProps) {
+export function PlaygroundPanel({className = "", style, ...props}: PlaygroundPanelProps) {
     const { id: pid, meshes } = usePlaygroundStore(useShallow(selector))
 
     return (
-        <div className="playground-panel">
-            <div className='flex justify-between align-center'>
+        <div className={`playground-panel ${className}`} style={{...style}} {...props}>
+            <div className='flex column justify-between align-center'>
                 <h3><b>Meshes</b></h3>
                 {/* <UploadMeshButton 
                     onUpload={file => {

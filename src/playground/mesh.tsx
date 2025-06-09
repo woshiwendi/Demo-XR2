@@ -67,7 +67,7 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
                         const selected = computeSelected(id, objects)
                         const unselected = computeUnselected(id, objects)
 
-                        // updateMesh(id, {selected})
+                        updateMesh(id, {selected}, false)
 
                         setSelectedMesh(selected)
                         // setUnselectedMesh(unselected)
@@ -89,7 +89,7 @@ export function XMesh({mesh: {id, segments, status, ...mesh}, autoRotate, ...pro
                 position={selectedMesh.position}
             >
                 <XSegment 
-                    disabled
+                    // disabled
                     segment={{...selectedMesh, status} as meshType}
                     onUpdate={event => {
                         sTransform.current = getMeshTransform(event)

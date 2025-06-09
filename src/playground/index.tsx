@@ -56,7 +56,8 @@ export default function Playground(props: PlaygroundProps) {
     } = usePlaygroundStore(useShallow(playgroundSelector))
     const [activeNav, setActiveNav] = useCustomState<navStateType>(navData.playground[0] as navStateType)
     
-    const plid = params.plid
+    // const plid = params.plid
+    const plid = "8989137c-ce55-4980-82f2-1577a9ba6ce5"
     const socket = useSocket()
 
     const loadMesh = async (mesh: meshType) => {
@@ -79,7 +80,7 @@ export default function Playground(props: PlaygroundProps) {
             for (let i = 0; i < meshes.length; i++) {
                 loadMesh(meshes[i])
             }
-            // setLoading({on: false, progressText: undefined})
+            setLoading({on: false, progressText: undefined})
         }
     }
 
@@ -97,7 +98,7 @@ export default function Playground(props: PlaygroundProps) {
             {/* Playground Nav */}
             {/* <DefaultNav 
                 user={user} 
-                style={{zIndex: 1}}
+                style={{zIndex: 1, borderRadius: 0, top: 0, left: 0}}
             />   */}
             
             <ModeControls/>

@@ -74,6 +74,8 @@ export function XSegment({disabled, segment: {id, uvs = [], vertices = [], color
         
         const objects = raycaster.intersectObject(segmentRef.current, false)
         const iPoint = segmentRef.current.worldToLocal(objects[0].point) // intersection point
+        // console.debug(`[XSegment][selectFaces] (iPoint) >>`, iPoint)
+
         if (!iPoint) return
         
         onFacesSelect?.(objects, [iPoint.x, iPoint.y, iPoint.z])
