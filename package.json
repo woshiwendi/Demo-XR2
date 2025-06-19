@@ -8,8 +8,12 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@react-three/drei": "^9.114.3",
-    "@react-three/fiber": "^8.17.9",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@react-three/uikit": "^0.8.20",
+    "@react-three/uikit-apfel": "^0.8.20",
+    "@react-three/uikit-lucide": "^0.8.20",
+    "@react-three/xr": "^6.6.17",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -34,7 +38,7 @@
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "zundo": "^2.3.0",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.5"
   },
   "scripts": {
     "start": "react-scripts start",

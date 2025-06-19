@@ -10,6 +10,7 @@ import './assets/css/vars/_nav.css';
 
 // pages
 import Playground from './playground';
+import XRPlayground from './xr_playground';
 
 // custom imports
 import './icons';
@@ -37,6 +38,7 @@ function Sponj3d() {
         <BrowserRouter>
           <Routes>
             <Route path={"/"} element={<Playground />}/>
+            <Route path={"/xr"} element={<XRPlayground />}/>
           </Routes>
         </BrowserRouter>
       </ThemeContext.Provider>

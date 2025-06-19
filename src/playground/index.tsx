@@ -72,22 +72,22 @@ export default function Playground(props: PlaygroundProps) {
 
     const initialzie = async () => {
         if (plid) {
-            init({id: plid, title: "", meshes: []})
+            // init({id: plid, title: "", meshes: []})
             
-            setLoading({on: true, progressText: "Initializing..."})
-            const meshes = (await getPlayground(plid)).meshes
+            // setLoading({on: true, progressText: "Initializing..."})
+            // const meshes = (await getPlayground(plid)).meshes
             
-            for (let i = 0; i < meshes.length; i++) {
-                loadMesh(meshes[i])
-            }
-            setLoading({on: false, progressText: undefined})
+            // for (let i = 0; i < meshes.length; i++) {
+            //     loadMesh(meshes[i])
+            // }
+            // setLoading({on: false, progressText: undefined})
         }
     }
 
-    useEffect(() => { document.title = `${title} - Sponj3d` || "Sponj3d"}, [title])    
+    useEffect(() => { document.title = `${title} - Instruct Mesh` || "Instruct Mesh"}, [title])    
     useEffect(() => { initialzie() }, [user.isAuthenticated])
 
-    useEffect(() => { user.init() }, [])
+    // useEffect(() => { user.init() }, [])
 
     // all control editing needs to be handled here and it will not know about the changes in the canvas, but that is fine it does not need to. 
     

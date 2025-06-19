@@ -19,8 +19,9 @@ export function PlaygroundPanel({className = "", style, ...props}: PlaygroundPan
 
     return (
         <div className={`playground-panel ${className}`} style={{...style}} {...props}>
-            <div className='flex column justify-between align-center'>
+            <div className='flex column justify-between'>
                 <h3><b>Meshes</b></h3>
+                {/*** TODO: activate mesh generation after ai api machine is setup ***/}
                 {/* <UploadMeshButton 
                     onUpload={file => {
                         console.log(file)

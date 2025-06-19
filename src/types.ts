@@ -40,3 +40,4 @@ export type downloadFileType = {
 
     blob?: Blob
 }
+
