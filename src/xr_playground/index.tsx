@@ -300,7 +300,11 @@ export default function XRButtonScene() {
       </button>
       <input ref={uploadInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
       
-      <Canvas shadows>
+      <Canvas
+        shadows
+        gl={{ alpha: true }}
+        style={{ background: 'transparent' }}
+      >
         <XR store={store}>
           <ambientLight intensity={1} />
           <directionalLight position={[5, 5, 5]} castShadow />
