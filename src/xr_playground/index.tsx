@@ -36,7 +36,7 @@ export default function App() {
 
       <Canvas
         shadows
-        gl={{ alpha: true, antialias: true, xrCompatible: true }}
+        gl={{ alpha: true, antialias: true }}
         style={{ background: 'transparent' }}
       >
         <XR store={store}>
