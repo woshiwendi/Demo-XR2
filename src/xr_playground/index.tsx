@@ -264,6 +264,7 @@ function UploadedImage({ imageUrl }: { imageUrl: string | null }) {
 
 export default function XRPlayground() {
   //const [toggled, setToggled] = useState(false)
+  const [position, setPosition] = useState(new Vector3())
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [showModel, setShowModel] = useState(false)
   const [pressedBtn, setPressedBtn] = useState<'upload' | 'generate' | null>(null)
