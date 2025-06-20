@@ -37,7 +37,7 @@ function Sponj3d() {
       <ThemeContext.Provider value={{theme, setTheme}}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<XRButtonScene />} /> 
+            <Route path="/" element={<XRPlayground />} /> 
           </Routes>
         </BrowserRouter>
       </ThemeContext.Provider>
