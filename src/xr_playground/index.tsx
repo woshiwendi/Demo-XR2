@@ -261,7 +261,7 @@ function UploadedImage({ imageUrl }: { imageUrl: string | null }) {
 
 
 
-export default function XRButtonScene() {
+export default function XRPlayground() {
   //const [toggled, setToggled] = useState(false)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [showModel, setShowModel] = useState(false)
