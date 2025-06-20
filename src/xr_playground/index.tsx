@@ -1,55 +1,24 @@
-import React from 'react'
 import { Canvas } from '@react-three/fiber'
 import { XR, createXRStore } from '@react-three/xr'
-import * as THREE from 'three'
+import { useState } from 'react'
 
-const store = createXRStore({
-  controller: {
-    left: { rayPointer: { rayModel: { color: 'black' } } },
-    right: { rayPointer: { rayModel: { color: 'black' } } },
-  },
-  enterGrantedSession: true,
-  screenInput: true,
-  originReferenceSpace: 'local-floor',
-  domOverlay: true,
-  handTracking: false,
-})
+const store = createXRStore()
 
-export default function App() {
-  const startAR = () => {
-    store.enterAR({
-      mode: 'immersive-ar',
-      requiredFeatures: ['hit-test', 'local-floor'],
-      optionalFeatures: ['dom-overlay'],
-      domOverlay: { root: document.body },
-    })
-  }
-
-  return (
-    <>
-      <button
-        onClick={startAR}
-        style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}
-      >
-        Enter AR
-      </button>
-
-      <Canvas
-        shadows
-        gl={{ alpha: true, antialias: true }}
-        style={{ background: 'transparent' }}
-      >
-        <XR store={store}>
-          <ambientLight intensity={1} />
-          <mesh position={[0, 1.5, -1]}>
-            <boxGeometry args={[0.3, 0.3, 0.3]} />
-            <meshStandardMaterial color="hotpink" />
-          </mesh>
-        </XR>
-      </Canvas>
-    </>
-  )
+export function App() {
+  const [red, setRed] = useState(false)
+  return <>
+    <button onClick={() => store.enterAR()}>Enter AR</button>
+    <Canvas>
+      <XR store={store}>
+        <mesh pointerEventsType={{ deny: 'grab' }} onClick={() => setRed(!red)} position={[0, 1, -1]}>
+          <boxGeometry />
+          <meshBasicMaterial color={red ? 'red' : 'blue'} />
+        </mesh>
+      </XR>
+    </Canvas>
+  </>
 }
+
 
 // // // src/xr_playground/index.tsx
 // import React, { useState, useMemo, useRef, Suspense } from 'react'
