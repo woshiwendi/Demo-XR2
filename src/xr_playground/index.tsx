@@ -11,6 +11,7 @@ import { useShallow } from 'zustand/shallow'
 import { useXRInputSourceEvent } from '@react-three/xr'
 import ControllerDistanceScaler from './ControllerDistanceScaler'
 import { useEffect } from 'react'
+import { Vector3 } from 'three'
 
 
 
