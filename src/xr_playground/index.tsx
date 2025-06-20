@@ -1,36 +1,20 @@
-// src/xr_playground/index.tsx
-import React, {
-  useState,
-  useMemo,
-  useRef,
-  Suspense,
-  forwardRef,
-  RefObject,
-  useEffect
-} from 'react'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+
+// // src/xr_playground/index.tsx
+import React, { useState, useMemo, useRef, Suspense } from 'react'
+import { Canvas, useLoader, useFrame } from '@react-three/fiber'
 import { XR, createXRStore, useXR, Interactive } from '@react-three/xr'
-import {
-  Root,
-  Defaults,
-  DefaultProperties,
-  Container,
-  Text,
-  GlassMaterial,
-  MetalMaterial,
-  setPreferredColorScheme
-} from '@react-three/uikit'
-import { colors } from '@react-three/uikit-default'
-import { Environment, ContactShadows, OrbitControls } from '@react-three/drei'
+import { Text, Environment, ContactShadows, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { XMesh } from '../playground/mesh'
 import { usePlaygroundStore } from '../playground/state/store'
 import { useShallow } from 'zustand/shallow'
-import { clamp, damp } from 'three/src/math/MathUtils.js'
+import { useXRInputSourceEvent } from '@react-three/xr'
 import ControllerDistanceScaler from './ControllerDistanceScaler'
+import { useEffect } from 'react'
 
-// 🚀 XR store
+
+
 const store = createXRStore({
   controller: {
     left: { rayPointer: { rayModel: { color: 'black' } } },
@@ -46,404 +30,63 @@ const store = createXRStore({
   domOverlay: true,
   originReferenceSpace: 'local-floor',
   bounded: false,
+  foveation: 0, 
+  emulate: { syntheticEnvironment: false }
 })
 
-setPreferredColorScheme('dark')
 
-// 🎶 Panel UI using UIKit
-function MusicUI({ widthSig, heightSig }: { widthSig: React.MutableRefObject<number>; heightSig: React.MutableRefObject<number> }) {
-  const width = widthSig.current
-  const height = heightSig.current
-  return (
-    <DefaultProperties borderColor={colors.background}>
-      <Defaults>
-        <Root anchorY="bottom" width={width} height={height} pixelSize={0.0015}>
-          <Container padding={8} backgroundColor={colors.background} borderRadius={16}
-                     panelMaterialClass={MetalMaterial} borderBend={0.4} borderWidth={4}>
-            <Text fontSize={18} fontWeight={500} color={colors.cardForeground} flexGrow={1}>
-              XR UIKit Panel
-            </Text>
-            <Text fontSize={14} color={colors.cardForeground}>🎧</Text>
-          </Container>
-          <Container width="100%" flexDirection="column" backgroundColor={colors.background} padding={16}>
-            <Text fontSize={14} color={colors.cardForeground}>Hello from the integrated panel!</Text>
-            <Container flexDirection="row" justifyContent="space-around" paddingTop={8}>
-              <Container width={30} height={30} backgroundColor={colors.accent}
-                         borderRadius={100} alignItems="center" justifyContent="center">
-                <Text fontSize={18} color="white">▶️</Text>
-              </Container>
-            </Container>
-          </Container>
-        </Root>
-      </Defaults>
-    </DefaultProperties>
-  )
-}
-
-// 📦 Draggable component
-function Draggable({ children, position = [0, 0, 0] }: { children: React.ReactNode; position?: [number, number, number] }) {
-  const ref = useRef<THREE.Group>(null)
-  const { controller } = useXR()
-  const [grabbed, setGrabbed] = useState<'left' | 'right' | null>(null)
-  const isDragging = useRef(false)
-
-  const handleStart = (e: any) => {
-    setGrabbed(e.controller)
-    isDragging.current = true
-  }
-  const handleEnd = (e: any) => {
-    if (e.controller === grabbed) {
-      setGrabbed(null)
-      isDragging.current = false
-    }
-  }
-
-  useFrame(() => {
-    if (grabbed && ref.current) {
-      const ctrl = controller(grabbed)
-      if (ctrl) {
-        ref.current.position.copy(ctrl.position)
-        ref.current.quaternion.copy(ctrl.quaternion)
-      }
-    }
-  })
-
-  return (
-    <Interactive onSelectStart={handleStart} onSelectEnd={handleEnd}>
-      <group ref={ref} position={position}>
-        {children}
-      </group>
-    </Interactive>
-  )
-}
-
-// 📈 GeneratedModel component with ScaleButtons
-function GeneratedModel() {
-  const gltf = useLoader(GLTFLoader, '/models/mesh1.glb')
-  const modelRef = useRef<THREE.Group>(null)
-  const [scale, setScale] = useState(1)
-
-  const handleScaleChange = (factor: number) => {
-    setScale(prev => clamp(prev * factor, 0.1, 5))
-  }
-
-  return (
-    <>
-      <Draggable position={[0, 1.0, -1]}>
-        <group ref={modelRef} scale={[scale, scale, scale]}>
-          <primitive object={gltf.scene} />
-        </group>
-      </Draggable>
-      <ScaleButtons onScaleChange={handleScaleChange} />
-    </>
-  )
-}
-
-// ➕ ➖ ScaleButtons
-function ScaleButtons({ onScaleChange }: { onScaleChange: (factor: number) => void }) {
-  const roundedPlane = useMemo(() => {
+function useRoundedPlane(width = 0.4, height = 0.2, radius = 0.05) {
+  return useMemo(() => {
     const shape = new THREE.Shape()
-    const w = 0.2, h = 0.1, r = 0.02
-    shape.moveTo(-w + r, -h)
-    shape.lineTo(w - r, -h)
-    shape.quadraticCurveTo(w, -h, w, -h + r)
-    shape.lineTo(w, h - r)
-    shape.quadraticCurveTo(w, h, w - r, h)
-    shape.lineTo(-w + r, h)
-    shape.quadraticCurveTo(-w, h, -w, h - r)
-    shape.lineTo(-w, -h + r)
-    shape.quadraticCurveTo(-w, -h, -w + r, -h)
+    const w = width / 2, h = height / 2
+    shape.moveTo(-w + radius, -h)
+    shape.lineTo(w - radius, -h)
+    shape.quadraticCurveTo(w, -h, w, -h + radius)
+    shape.lineTo(w, h - radius)
+    shape.quadraticCurveTo(w, h, w - radius, h)
+    shape.lineTo(-w + radius, h)
+    shape.quadraticCurveTo(-w, h, -w, h - radius)
+    shape.lineTo(-w, -h + radius)
+    shape.quadraticCurveTo(-w, -h, -w + radius, -h)
     return new THREE.ShapeGeometry(shape)
-  }, [])
-
-  return (
-    <>
-      <Interactive onSelect={() => onScaleChange(1.1)}>
-        <mesh position={[-0.6, 1.5, -1]} geometry={roundedPlane}>
-          <meshStandardMaterial color="green" />
-          <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="white">+</Text>
-        </mesh>
-      </Interactive>
-      <Interactive onSelect={() => onScaleChange(0.9)}>
-        <mesh position={[-0.6, 1.3, -1]} geometry={roundedPlane}>
-          <meshStandardMaterial color="red" />
-          <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="white">‑</Text>
-        </mesh>
-      </Interactive>
-    </>
-  )
+  }, [width, height, radius])
 }
 
-// 🖼️ UploadedImage component
-function UploadedImage({ imageUrl }: { imageUrl: string | null }) {
-  const texture = useLoader(THREE.TextureLoader, imageUrl || '/placeholder.png')
-  if (!imageUrl || !texture.image) return null
-  const ar = texture.image.width / texture.image.height
-  const h = 0.6, w = h * ar
-
-  return (
-    <Draggable position={[1.2, 1.3, -1]}>
-      <mesh>
-        <planeGeometry args={[w, h]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
-      </mesh>
-    </Draggable>
-  )
-}
-
-// 🏁 Main component
-export default function XRPlayground() {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [showModel, setShowModel] = useState(false)
-  const [pressedBtn, setPressedBtn] = useState<'upload' | 'generate' | null>(null)
-  const playground = usePlaygroundStore(useShallow(state => ({ meshes: state.meshes })))
-  
-  const widthSig = useRef(600)
-  const heightSig = useRef(300)
-
-  const handleUpload = () => {
-    setPressedBtn('upload')
-    document.getElementById('uploadInput')?.click()
-    setTimeout(() => setPressedBtn(null), 150)
-  }
-
-  const handleGenerate = () => {
-    setPressedBtn('generate')
-    setShowModel(true)
-    setTimeout(() => setPressedBtn(null), 150)
-  }
-
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) setImageUrl(URL.createObjectURL(file))
-  }
-
-  useEffect(() => {
-    const canvas = document.querySelector('canvas')
-    if (!canvas) return
-    const renderer = canvas.renderer || (THREE as any).WebGLRenderer ? new THREE.WebGLRenderer() : null
-    if (renderer) renderer.xr.enabled = true
-  }, [])
-
-  return (
-    <>
-      <input id="uploadInput" type="file" accept="image/*" style={{ display: 'none' }} onChange={onFileChange} />
-      <button
-        style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}
-        onClick={() => store.session ? store.exitXR() : store.enterAR({ requiredFeatures: ['hit-test'] })}
-      >
-        {store.session ? 'Exit XR' : 'Enter AR'}
-      </button>
-
-      <Canvas style={{ background: 'transparent' }} shadows gl={{ alpha: true }}>
-        <XR store={store}>
-          <ambientLight intensity={0.8} />
-          <directionalLight position={[5, 5, 5]} />
-
-          <Environment preset="warehouse" background />
-
-          <group position={[0, 1.2, -1]}>
-            <MusicUI widthSig={widthSig} heightSig={heightSig} />
-          </group>
-
-          <mesh position={[0.6, 1.5, -1]} onClick={handleUpload}>
-            <planeGeometry args={[0.2, 0.1]} />
-            <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'upload' ? 0.5 : 0.8} side={2} />
-            <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Upload</Text>
-          </mesh>
-          
-          <mesh position={[0.6, 1.2, -1]} onClick={handleGenerate}>
-            <planeGeometry args={[0.2, 0.1]} />
-            <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'generate' ? 0.5 : 0.8} side={2} />
-            <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Generate</Text>
-          </mesh>
-
-          <UploadedImage imageUrl={imageUrl} />
-
-          <Suspense fallback={null}>
-            {playground.meshes.map(m => (
-              <Draggable key={m.id} position={m.position.toArray() as [number, number, number]}>
-                <XMesh mesh={m} autoRotate={false} />
-              </Draggable>
-            ))}
-          </Suspense>
-
-          {showModel && <Suspense fallback={null}><GeneratedModel /></Suspense>}
-
-          <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} />
-          <OrbitControls />
-          <ControllerDistanceScaler />
-        </XR>
-      </Canvas>
-    </>
-  )
-}
-// // // src/xr_playground/index.tsx
-// import React, { useState, useMemo, useRef, Suspense } from 'react'
-// import { Canvas, useLoader, useFrame } from '@react-three/fiber'
-// import { XR, createXRStore, useXR, Interactive } from '@react-three/xr'
-// import { Text, Environment, ContactShadows, OrbitControls } from '@react-three/drei'
-// import * as THREE from 'three'
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-// import { XMesh } from '../playground/mesh'
-// import { usePlaygroundStore } from '../playground/state/store'
-// import { useShallow } from 'zustand/shallow'
-// import { useXRInputSourceEvent } from '@react-three/xr'
-// import ControllerDistanceScaler from './ControllerDistanceScaler'
-// import { useEffect } from 'react'
-
-
-
-// const store = createXRStore({
-//   controller: {
-//     left: { rayPointer: { rayModel: { color: 'black' } } },
-//     right: { rayPointer: { rayModel: { color: 'black' } } },
-//   },
-//   enterGrantedSession: true,
-//   screenInput: true,
-//   handTracking: false,
-//   hitTest: true,
-//   planeDetection: false,
-//   anchors: true,
-//   gaze: false,
-//   domOverlay: true,
-//   originReferenceSpace: 'local-floor',
-//   bounded: false,
-//   foveation: 0, 
-//   emulate: { syntheticEnvironment: false }
-// })
-
-
-// function useRoundedPlane(width = 0.4, height = 0.2, radius = 0.05) {
-//   return useMemo(() => {
-//     const shape = new THREE.Shape()
-//     const w = width / 2, h = height / 2
-//     shape.moveTo(-w + radius, -h)
-//     shape.lineTo(w - radius, -h)
-//     shape.quadraticCurveTo(w, -h, w, -h + radius)
-//     shape.lineTo(w, h - radius)
-//     shape.quadraticCurveTo(w, h, w - radius, h)
-//     shape.lineTo(-w + radius, h)
-//     shape.quadraticCurveTo(-w, h, -w, h - radius)
-//     shape.lineTo(-w, -h + radius)
-//     shape.quadraticCurveTo(-w, -h, -w + radius, -h)
-//     return new THREE.ShapeGeometry(shape)
-//   }, [width, height, radius])
-// }
-
-// type DraggableProps = {
-//   children: React.ReactNode;
-//   position?: [number, number, number];
-// };
-
-// // function Draggable({ children, position = [0, 0, 0] }: DraggableProps) {
-// //   const ref = useRef<THREE.Group>(null)
-// //   const { controller } = useXR()
-// //   const [grabbed, setGrabbed] = useState<'left' | 'right' | null>(null)
-
-// //   const handleStart = (event: any) => {
-// //     const id = event.controller
-// //     if (!ref.current) return
-// //     setGrabbed(id)
-
-// //     ref.current.traverse((obj: any) => {
-// //       if (obj.isMesh && obj.material?.color) {
-// //         if (!obj.userData._originalColor) {
-// //           obj.userData._originalColor = obj.material.color.getHex()
-// //         }
-// //         obj.material.color.set('#3399ff')
-// //       }
-// //     })
-// //   }
-
-// //   const handleEnd = (event: any) => {
-// //     if (event.controller === grabbed) {
-// //       setGrabbed(null)
-// //       ref.current?.traverse((obj: any) => {
-// //         if (obj.isMesh && obj.material?.color && obj.userData._originalColor) {
-// //           obj.material.color.setHex(obj.userData._originalColor)
-// //           delete obj.userData._originalColor
-// //         }
-// //       })
-// //     }
-// //   }
-
-// //   useFrame(() => {
-// //     if (grabbed && ref.current) {
-// //       const ctrl = controller(grabbed)
-// //       if (ctrl) {
-// //         ref.current.position.copy(ctrl.position)
-// //         ref.current.quaternion.copy(ctrl.quaternion)
-// //       }
-// //     }
-// //   })
-
-// //   return (
-// //     <Interactive onSelectStart={handleStart} onSelectEnd={handleEnd}>
-// //       <group ref={ref} position={position}>
-// //         {children}
-// //       </group>
-// //     </Interactive>
-// //   )
-// // }
-
-
-// function ScaleButtons({ onScaleChange }: { onScaleChange: (factor: number) => void }) {
-//   const buttonGeometry = useRoundedPlane(0.2, 0.1, 0.02)
-
-//   return (
-//     <>
-//       <Interactive onSelect={() => onScaleChange(1.1)}>
-//         <mesh position={[-0.6, 1.5, -1]} geometry={buttonGeometry}>
-//           <meshStandardMaterial color="green" />
-//           <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="white">+</Text>
-//         </mesh>
-//       </Interactive>
-
-//       <Interactive onSelect={() => onScaleChange(0.9)}>
-//         <mesh position={[-0.6, 1.3, -1]} geometry={buttonGeometry}>
-//           <meshStandardMaterial color="red" />
-//           <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="white">-</Text>
-//         </mesh>
-//       </Interactive>
-//     </>
-//   )
-// }
-
-
+type DraggableProps = {
+  children: React.ReactNode;
+  position?: [number, number, number];
+};
 
 // function Draggable({ children, position = [0, 0, 0] }: DraggableProps) {
 //   const ref = useRef<THREE.Group>(null)
 //   const { controller } = useXR()
 //   const [grabbed, setGrabbed] = useState<'left' | 'right' | null>(null)
-//   const isDragging = useRef(false)
 
-//   // XR 控制器抓取回调
-//   const handleStart = (e: any) => {
-//     const id = e.controller
+//   const handleStart = (event: any) => {
+//     const id = event.controller
 //     if (!ref.current) return
 //     setGrabbed(id)
-//     isDragging.current = true
-//   }
-//   const handleEnd = (e: any) => {
-//     if (e.controller === grabbed) {
-//       setGrabbed(null)
-//       isDragging.current = false
-//     }
+
+//     ref.current.traverse((obj: any) => {
+//       if (obj.isMesh && obj.material?.color) {
+//         if (!obj.userData._originalColor) {
+//           obj.userData._originalColor = obj.material.color.getHex()
+//         }
+//         obj.material.color.set('#3399ff')
+//       }
+//     })
 //   }
 
-//   // 鼠标拖拽事件逻辑
-//   const onPointerDown = (e: any) => {
-//     isDragging.current = true
-//     ref.current!.setPointerCapture(e.pointerId)
-//   }
-//   const onPointerMove = (e: any) => {
-//     if (!isDragging.current) return
-//     ref.current!.position.copy(e.point)
-//   }
-//   const onPointerUp = (e: any) => {
-//     isDragging.current = false
-//     ref.current!.releasePointerCapture(e.pointerId)
+//   const handleEnd = (event: any) => {
+//     if (event.controller === grabbed) {
+//       setGrabbed(null)
+//       ref.current?.traverse((obj: any) => {
+//         if (obj.isMesh && obj.material?.color && obj.userData._originalColor) {
+//           obj.material.color.setHex(obj.userData._originalColor)
+//           delete obj.userData._originalColor
+//         }
+//       })
+//     }
 //   }
 
 //   useFrame(() => {
@@ -458,13 +101,7 @@ export default function XRPlayground() {
 
 //   return (
 //     <Interactive onSelectStart={handleStart} onSelectEnd={handleEnd}>
-//       <group
-//         ref={ref}
-//         position={position}
-//         onPointerDown={onPointerDown}
-//         onPointerMove={onPointerMove}
-//         onPointerUp={onPointerUp}
-//       >
+//       <group ref={ref} position={position}>
 //         {children}
 //       </group>
 //     </Interactive>
@@ -472,195 +109,279 @@ export default function XRPlayground() {
 // }
 
 
+function ScaleButtons({ onScaleChange }: { onScaleChange: (factor: number) => void }) {
+  const buttonGeometry = useRoundedPlane(0.2, 0.1, 0.02)
 
-// function ControllerDebugLines() {
-//   const leftRef = useRef<THREE.ArrowHelper>(null)
-//   const rightRef = useRef<THREE.ArrowHelper>(null)
-//   const { controller } = useXR()
-//   useFrame(() => {
-//     const left = controller('left'), right = controller('right')
-//     if (left && leftRef.current) {
-//       leftRef.current.position.copy(left.position)
-//       leftRef.current.setDirection(new THREE.Vector3(0,0,-1).applyQuaternion(left.quaternion))
-//     }
-//     if (right && rightRef.current) {
-//       rightRef.current.position.copy(right.position)
-//       rightRef.current.setDirection(new THREE.Vector3(0,0,-1).applyQuaternion(right.quaternion))
-//     }
-//   })
-//   return (
-//     <>
-//       <arrowHelper ref={leftRef} args={[new THREE.Vector3(0,0,-1), new THREE.Vector3(), 0.3, 0xff0000]} />
-//       <arrowHelper ref={rightRef} args={[new THREE.Vector3(0,0,-1), new THREE.Vector3(), 0.3, 0x0000ff]} />
-//     </>
-//   )
-// }
+  return (
+    <>
+      <Interactive onSelect={() => onScaleChange(1.1)}>
+        <mesh position={[-0.6, 1.5, -1]} geometry={buttonGeometry}>
+          <meshStandardMaterial color="green" />
+          <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="white">+</Text>
+        </mesh>
+      </Interactive>
+
+      <Interactive onSelect={() => onScaleChange(0.9)}>
+        <mesh position={[-0.6, 1.3, -1]} geometry={buttonGeometry}>
+          <meshStandardMaterial color="red" />
+          <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="white">-</Text>
+        </mesh>
+      </Interactive>
+    </>
+  )
+}
 
 
 
-// function GeneratedModel() {
-//   const gltf = useLoader(GLTFLoader, '/models/mesh1.glb')
-//   const modelRef = useRef<THREE.Group>(null)
-//   const [scale, setScale] = useState(1)
+function Draggable({ children, position = [0, 0, 0] }: DraggableProps) {
+  const ref = useRef<THREE.Group>(null)
+  const { controller } = useXR()
+  const [grabbed, setGrabbed] = useState<'left' | 'right' | null>(null)
+  const isDragging = useRef(false)
 
-//   const handleScaleChange = (factor: number) => {
-//     setScale(prev => Math.max(0.1, Math.min(prev * factor, 5))) // 限制在 [0.1, 5]
-//   }
+  // XR 控制器抓取回调
+  const handleStart = (e: any) => {
+    const id = e.controller
+    if (!ref.current) return
+    setGrabbed(id)
+    isDragging.current = true
+  }
+  const handleEnd = (e: any) => {
+    if (e.controller === grabbed) {
+      setGrabbed(null)
+      isDragging.current = false
+    }
+  }
 
-//   return (
-//     <>
-//       <Draggable position={[0, 1.0, -1]}>
-//         <group ref={modelRef} scale={[scale, scale, scale]}>
-//           <primitive object={gltf.scene} />
-//         </group>
-//       </Draggable>
-//       <ScaleButtons onScaleChange={handleScaleChange} />
-//     </>
-//   )
-// }
+  // 鼠标拖拽事件逻辑
+  const onPointerDown = (e: any) => {
+    isDragging.current = true
+    ref.current!.setPointerCapture(e.pointerId)
+  }
+  const onPointerMove = (e: any) => {
+    if (!isDragging.current) return
+    ref.current!.position.copy(e.point)
+  }
+  const onPointerUp = (e: any) => {
+    isDragging.current = false
+    ref.current!.releasePointerCapture(e.pointerId)
+  }
+
+  useFrame(() => {
+    if (grabbed && ref.current) {
+      const ctrl = controller(grabbed)
+      if (ctrl) {
+        ref.current.position.copy(ctrl.position)
+        ref.current.quaternion.copy(ctrl.quaternion)
+      }
+    }
+  })
+
+  return (
+    <Interactive onSelectStart={handleStart} onSelectEnd={handleEnd}>
+      <group
+        ref={ref}
+        position={position}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+      >
+        {children}
+      </group>
+    </Interactive>
+  )
+}
 
 
 
-// function UploadedImage({ imageUrl }: { imageUrl: string | null }) {
-//   const texture = useLoader(THREE.TextureLoader, imageUrl || '/placeholder.png')
+function ControllerDebugLines() {
+  const leftRef = useRef<THREE.ArrowHelper>(null)
+  const rightRef = useRef<THREE.ArrowHelper>(null)
+  const { controller } = useXR()
+  useFrame(() => {
+    const left = controller('left'), right = controller('right')
+    if (left && leftRef.current) {
+      leftRef.current.position.copy(left.position)
+      leftRef.current.setDirection(new THREE.Vector3(0,0,-1).applyQuaternion(left.quaternion))
+    }
+    if (right && rightRef.current) {
+      rightRef.current.position.copy(right.position)
+      rightRef.current.setDirection(new THREE.Vector3(0,0,-1).applyQuaternion(right.quaternion))
+    }
+  })
+  return (
+    <>
+      <arrowHelper ref={leftRef} args={[new THREE.Vector3(0,0,-1), new THREE.Vector3(), 0.3, 0xff0000]} />
+      <arrowHelper ref={rightRef} args={[new THREE.Vector3(0,0,-1), new THREE.Vector3(), 0.3, 0x0000ff]} />
+    </>
+  )
+}
 
-//   if (!imageUrl || !texture.image) return null
-
-//   const aspectRatio = texture.image.width / texture.image.height
-//   const height = 0.6
-//   const width = height * aspectRatio
-
-//   return (
-//     <Draggable position={[1.2, 1.3, -1]}>
-//       <mesh>
-//         <planeGeometry args={[width, height]} />
-//         <meshBasicMaterial map={texture} toneMapped={false} />
-//       </mesh>
-//     </Draggable>
-//   )
-// }
 
 
+function GeneratedModel() {
+  const gltf = useLoader(GLTFLoader, '/models/mesh1.glb')
+  const modelRef = useRef<THREE.Group>(null)
+  const [scale, setScale] = useState(1)
 
-// export default function XRPlayground() {
-//   //const [toggled, setToggled] = useState(false)
-//   const [imageUrl, setImageUrl] = useState<string | null>(null)
-//   const [showModel, setShowModel] = useState(false)
-//   const [pressedBtn, setPressedBtn] = useState<'upload' | 'generate' | null>(null)
-//   const roundedPlane = useRoundedPlane()
-//   const uploadInputRef = useRef<HTMLInputElement>(null)
-//   const playground = usePlaygroundStore(useShallow(state => ({
-//     meshes: state.meshes,
-//   })))
+  const handleScaleChange = (factor: number) => {
+    setScale(prev => Math.max(0.1, Math.min(prev * factor, 5))) // 限制在 [0.1, 5]
+  }
 
-//   useEffect(() => {
-//     const canvas = document.querySelector('canvas')
-//     if (!canvas) return
-//     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
-//     renderer.xr.enabled = true
-//   }, [])
+  return (
+    <>
+      <Draggable position={[0, 1.0, -1]}>
+        <group ref={modelRef} scale={[scale, scale, scale]}>
+          <primitive object={gltf.scene} />
+        </group>
+      </Draggable>
+      <ScaleButtons onScaleChange={handleScaleChange} />
+    </>
+  )
+}
+
+
+
+function UploadedImage({ imageUrl }: { imageUrl: string | null }) {
+  const texture = useLoader(THREE.TextureLoader, imageUrl || '/placeholder.png')
+
+  if (!imageUrl || !texture.image) return null
+
+  const aspectRatio = texture.image.width / texture.image.height
+  const height = 0.6
+  const width = height * aspectRatio
+
+  return (
+    <Draggable position={[1.2, 1.3, -1]}>
+      <mesh>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+    </Draggable>
+  )
+}
+
+
+
+export default function XRPlayground() {
+  //const [toggled, setToggled] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [showModel, setShowModel] = useState(false)
+  const [pressedBtn, setPressedBtn] = useState<'upload' | 'generate' | null>(null)
+  const roundedPlane = useRoundedPlane()
+  const uploadInputRef = useRef<HTMLInputElement>(null)
+  const playground = usePlaygroundStore(useShallow(state => ({
+    meshes: state.meshes,
+  })))
+
+  useEffect(() => {
+    const canvas = document.querySelector('canvas')
+    if (!canvas) return
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
+    renderer.xr.enabled = true
+  }, [])
   
-//   const handleUpload = () => {
-//     setPressedBtn('upload')
-//     setTimeout(() => setPressedBtn(null), 150)
-//     uploadInputRef.current?.click()
-//   }
+  const handleUpload = () => {
+    setPressedBtn('upload')
+    setTimeout(() => setPressedBtn(null), 150)
+    uploadInputRef.current?.click()
+  }
 
-//   const handleGenerate = () => {
-//     setPressedBtn('generate')
-//     setShowModel(true)
-//     setTimeout(() => setPressedBtn(null), 150)
-//   }
+  const handleGenerate = () => {
+    setPressedBtn('generate')
+    setShowModel(true)
+    setTimeout(() => setPressedBtn(null), 150)
+  }
 
-//     const onFile = (e: any) => {
-//     const f = e.target.files?.[0]
-//     if (f) setImageUrl(URL.createObjectURL(f))
-//   }
+    const onFile = (e: any) => {
+    const f = e.target.files?.[0]
+    if (f) setImageUrl(URL.createObjectURL(f))
+  }
 
-//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = e.target.files?.[0]
-//     if (file) {
-//       setImageUrl(URL.createObjectURL(file))
-//     }
-//   }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImageUrl(URL.createObjectURL(file))
+    }
+  }
 
-//   return (
-//     <>
-//       <button
-//         onClick={() => {
-//           store.enterAR({
-//             requiredFeatures: ['hit-test'],
-//             optionalFeatures: ['local-floor', 'dom-overlay'],
-//             mode: 'immersive-ar',
-//           })
-//         }}
-//         style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}
-//       >
-//         {store.session ? 'Exit AR' : 'Enter AR'}
-//       </button>
-//       <input ref={uploadInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+  return (
+    <>
+      <button
+        onClick={() => {
+          store.enterAR({
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['local-floor', 'dom-overlay'],
+            mode: 'immersive-ar',
+          })
+        }}
+        style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}
+      >
+        {store.session ? 'Exit AR' : 'Enter AR'}
+      </button>
+      <input ref={uploadInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
       
-//       <Canvas
-//         shadows
-//         gl={{ alpha: true }}
-//         style={{ background: 'transparent' }}
-//       >
+      <Canvas
+        shadows
+        gl={{ alpha: true }}
+        style={{ background: 'transparent' }}
+      >
 
-//         <XR store={store}>
-//           <ambientLight intensity={1} />
-//           <directionalLight position={[5, 5, 5]} castShadow />
-//           <Environment preset="warehouse" />
-//           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-//             <planeGeometry args={[10, 10]} />
-//             <meshStandardMaterial color="rgb(121,121,121)" />
-//           </mesh>
+        <XR store={store}>
+          <ambientLight intensity={1} />
+          <directionalLight position={[5, 5, 5]} castShadow />
+          <Environment preset="warehouse" />
+          <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <planeGeometry args={[10, 10]} />
+            <meshStandardMaterial color="rgb(121,121,121)" />
+          </mesh>
 
-//           {/* <mesh geometry={roundedPlane} position={[0, 1.5, -1]} onClick={() => setToggled(prev => !prev)} castShadow>
-//             <meshStandardMaterial color={toggled ? [1, 0.5, 0] : [0.5, 0.8, 1]} transparent opacity={0.5} side={2} />
-//             <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="black">
-//               {toggled ? 'Toggled' : 'Toggle Me'}
-//             </Text>
-//           </mesh> */}
+          {/* <mesh geometry={roundedPlane} position={[0, 1.5, -1]} onClick={() => setToggled(prev => !prev)} castShadow>
+            <meshStandardMaterial color={toggled ? [1, 0.5, 0] : [0.5, 0.8, 1]} transparent opacity={0.5} side={2} />
+            <Text position={[0, 0, 0.01]} fontSize={0.05} anchorX="center" anchorY="middle" color="black">
+              {toggled ? 'Toggled' : 'Toggle Me'}
+            </Text>
+          </mesh> */}
 
-//           <mesh geometry={roundedPlane} position={[0.6, 1.5, -1]} onClick={handleUpload} castShadow>
-//             <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'upload' ? 0.5 : 0.8} side={2} />
-//             <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Upload</Text>
-//           </mesh>
+          <mesh geometry={roundedPlane} position={[0.6, 1.5, -1]} onClick={handleUpload} castShadow>
+            <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'upload' ? 0.5 : 0.8} side={2} />
+            <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Upload</Text>
+          </mesh>
 
-//           <mesh geometry={roundedPlane} position={[0.6, 1.2, -1]} onClick={handleGenerate} castShadow>
-//             <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'generate' ? 0.5 : 0.8} side={2} />
-//             <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Generate</Text>
-//           </mesh>
+          <mesh geometry={roundedPlane} position={[0.6, 1.2, -1]} onClick={handleGenerate} castShadow>
+            <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'generate' ? 0.5 : 0.8} side={2} />
+            <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Generate</Text>
+          </mesh>
 
-//           {/* <mesh geometry={roundedPlane} position={[0.6, 1.5, -1]} onClick={Rotate} castShadow>
-//             <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'upload' ? 0.5 : 0.8} side={2} />
-//             <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Rotate</Text>
-//           </mesh> */}
+          {/* <mesh geometry={roundedPlane} position={[0.6, 1.5, -1]} onClick={Rotate} castShadow>
+            <meshStandardMaterial color="black" transparent opacity={pressedBtn === 'upload' ? 0.5 : 0.8} side={2} />
+            <Text position={[0, 0, 0.01]} fontSize={0.06} anchorX="center" anchorY="middle" color="white">Rotate</Text>
+          </mesh> */}
 
 
-//           <UploadedImage imageUrl={imageUrl} />
+          <UploadedImage imageUrl={imageUrl} />
 
-//           <Suspense fallback={null}>
-//             {playground.meshes.map(m => (
-//               <Draggable key={m.id} position={m.position.toArray() as [number, number, number]}>
-//                 <XMesh mesh={m} autoRotate={false} />
-//               </Draggable>
-//             ))}
-//           </Suspense>
+          <Suspense fallback={null}>
+            {playground.meshes.map(m => (
+              <Draggable key={m.id} position={m.position.toArray() as [number, number, number]}>
+                <XMesh mesh={m} autoRotate={false} />
+              </Draggable>
+            ))}
+          </Suspense>
 
-//           {showModel && (
-//             <Suspense fallback={null}>
-//               <GeneratedModel />
-//             </Suspense>
-//           )}
+          {showModel && (
+            <Suspense fallback={null}>
+              <GeneratedModel />
+            </Suspense>
+          )}
 
-//           <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} far={2} />
-//           <OrbitControls />
-//         </XR>
-//       </Canvas>
-//     </>
-//   )
-// }
+          <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} far={2} />
+          <OrbitControls />
+        </XR>
+      </Canvas>
+    </>
+  )
+}
 
 
 
