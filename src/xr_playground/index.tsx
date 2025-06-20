@@ -230,6 +230,12 @@ export default function XRPlayground() {
     if (!canvas) return
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
     renderer.xr.enabled = true
+
+    document.body.appendChild(VRButton.createButton(renderer));
+
+    renderer.setAnimationLoop(() => {
+    renderer.render(scene, camera);
+    });
   }, [])
   
   const handleUpload = () => {
