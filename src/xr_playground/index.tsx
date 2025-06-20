@@ -328,7 +328,7 @@ export default function XRPlayground() {
           )}
 
           <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} far={2} />
-          <OrbitControls />
+          { !store.session && <OrbitControls /> }
         </XR>
       </Canvas>
     </>
