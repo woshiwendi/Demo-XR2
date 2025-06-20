@@ -38,23 +38,25 @@ function Sponj3d() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
-      <Canvas
-        shadows
-        gl={{ alpha: true }}
-        style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'transparent' }}
-      >
-        <XR store={store}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<XRPlayground />} />
-              {/* 其他路由也可以放这 */}
-            </Routes>
-          </BrowserRouter>
-        </XR>
-      </Canvas>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={
+            <Canvas
+              shadows
+              gl={{ alpha: true }}
+              style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'transparent' }}
+            >
+              <XR store={store}>
+                <XRPlayground />
+              </XR>
+            </Canvas>
+          } />
+        </Routes>
+      </BrowserRouter>
     </ThemeContext.Provider>
   )
 }
+
 
 root.render(
   // <React.StrictMode>
