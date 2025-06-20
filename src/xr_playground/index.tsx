@@ -16,8 +16,8 @@ import { useEffect } from 'react'
 
 const store = createXRStore({
   controller: {
-    left: { rayPointer: { rayModel: { color: 'black' } } },
-    right: { rayPointer: { rayModel: { color: 'black' } } },
+    left: { rayPointer: { rayModel: { color: 'black' }, enabled: true } },
+    right: { rayPointer: { rayModel: { color: 'black' }, enabled: true } },
   },
   enterGrantedSession: true,
   screenInput: true,
