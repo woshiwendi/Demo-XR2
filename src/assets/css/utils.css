@@ -411,3 +411,8 @@ input[type="range"]::-ms-fill-lower {
 input[type="range"]::-ms-fill-upper {  
     background-color: var(--font-color-primary);;
 }
+
+/* utils.css 最底部添加 */
+body {
+  background-color: transparent !important;
+}
