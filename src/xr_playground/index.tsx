@@ -57,56 +57,6 @@ type DraggableProps = {
   position?: [number, number, number];
 };
 
-// function Draggable({ children, position = [0, 0, 0] }: DraggableProps) {
-//   const ref = useRef<THREE.Group>(null)
-//   const { controller } = useXR()
-//   const [grabbed, setGrabbed] = useState<'left' | 'right' | null>(null)
-
-//   const handleStart = (event: any) => {
-//     const id = event.controller
-//     if (!ref.current) return
-//     setGrabbed(id)
-
-//     ref.current.traverse((obj: any) => {
-//       if (obj.isMesh && obj.material?.color) {
-//         if (!obj.userData._originalColor) {
-//           obj.userData._originalColor = obj.material.color.getHex()
-//         }
-//         obj.material.color.set('#3399ff')
-//       }
-//     })
-//   }
-
-//   const handleEnd = (event: any) => {
-//     if (event.controller === grabbed) {
-//       setGrabbed(null)
-//       ref.current?.traverse((obj: any) => {
-//         if (obj.isMesh && obj.material?.color && obj.userData._originalColor) {
-//           obj.material.color.setHex(obj.userData._originalColor)
-//           delete obj.userData._originalColor
-//         }
-//       })
-//     }
-//   }
-
-//   useFrame(() => {
-//     if (grabbed && ref.current) {
-//       const ctrl = controller(grabbed)
-//       if (ctrl) {
-//         ref.current.position.copy(ctrl.position)
-//         ref.current.quaternion.copy(ctrl.quaternion)
-//       }
-//     }
-//   })
-
-//   return (
-//     <Interactive onSelectStart={handleStart} onSelectEnd={handleEnd}>
-//       <group ref={ref} position={position}>
-//         {children}
-//       </group>
-//     </Interactive>
-//   )
-// }
 
 
 function ScaleButtons({ onScaleChange }: { onScaleChange: (factor: number) => void }) {
