@@ -310,7 +310,7 @@ export default function XRButtonScene() {
       
       <Canvas
         shadows
-        gl={{ alpha: true }}
+        gl={{ alpha: false }}
         style={{ background: 'transparent' }}
       >
         <XR store={store}>
