@@ -1,6 +1,16 @@
-import { Canvas } from '@react-three/fiber'
-import { XR, createXRStore } from '@react-three/xr'
-import { useState } from 'react'
+// // src/xr_playground/index.tsx
+import React, { useState, useMemo, useRef, Suspense } from 'react'
+import { Canvas, useLoader, useFrame } from '@react-three/fiber'
+import { XR, createXRStore, useXR, Interactive } from '@react-three/xr'
+import { Text, Environment, ContactShadows, OrbitControls } from '@react-three/drei'
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { XMesh } from '../playground/mesh'
+import { usePlaygroundStore } from '../playground/state/store'
+import { useShallow } from 'zustand/shallow'
+import { useXRInputSourceEvent } from '@react-three/xr'
+import ControllerDistanceScaler from './ControllerDistanceScaler'
+import { useEffect } from 'react'
 
 const store = createXRStore()
 
