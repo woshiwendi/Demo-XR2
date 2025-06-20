@@ -357,7 +357,7 @@ export default function XRButtonScene() {
 
 
           <UploadedImage imageUrl={imageUrl} />
-          
+          <ControllerDebugLines />
 
           <Suspense fallback={null}>
             {playground.meshes.map(m => (
