@@ -2,7 +2,7 @@
 // // src/xr_playground/index.tsx
 import React, { useState, useMemo, useRef, Suspense } from 'react'
 import { Canvas, useLoader, useFrame } from '@react-three/fiber'
-import { XR, createXRStore, useXR, Interactive } from '@react-three/xr'
+import { XR, createXRStore, useXR, Interactive, XROrigin } from '@react-three/xr'
 import { Text, Environment, ContactShadows, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -328,6 +328,7 @@ export default function XRPlayground() {
       >
 
         <XR store={store}>
+          <XROrigin position-y={-1.5}>
           <ambientLight intensity={1} />
           <directionalLight position={[5, 5, 5]} castShadow />
           <Environment preset="warehouse" />
@@ -377,6 +378,7 @@ export default function XRPlayground() {
 
           <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} far={2} />
           <OrbitControls />
+          </XROrigin>
         </XR>
       </Canvas>
     </>
