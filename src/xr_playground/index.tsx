@@ -10,6 +10,7 @@ import { usePlaygroundStore } from '../playground/state/store'
 import { useShallow } from 'zustand/shallow'
 import { useXRInputSourceEvent } from '@react-three/xr'
 import ControllerDistanceScaler from './ControllerDistanceScaler'
+import { useEffect } from 'react'
 
 
 const store = createXRStore({
@@ -269,6 +270,13 @@ export default function XRButtonScene() {
     meshes: state.meshes,
   })))
 
+  useEffect(() => {
+    const canvas = document.querySelector('canvas')
+    if (!canvas) return
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
+    renderer.xr.enabled = true
+  }, [])
+  
   const handleUpload = () => {
     setPressedBtn('upload')
     setTimeout(() => setPressedBtn(null), 150)
