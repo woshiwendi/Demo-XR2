@@ -302,9 +302,9 @@ export default function XRButtonScene() {
       
       <Canvas
         shadows
-        gl={{ alpha: true, antialias: true }}
+        gl={{ alpha: true }}
         style={{ background: 'transparent' }}
-      />
+      >
         <XR store={store}>
           <ambientLight intensity={1} />
           <directionalLight position={[5, 5, 5]} castShadow />
