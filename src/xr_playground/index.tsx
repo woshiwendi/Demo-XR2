@@ -13,7 +13,7 @@ import ControllerDistanceScaler from './ControllerDistanceScaler'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-
+import { useThree } from '@react-three/fiber';
 
 const store = createXRStore({
   controller: {
@@ -34,6 +34,13 @@ const store = createXRStore({
   emulate: { syntheticEnvironment: false }
 })
 
+function DebugRenderState() {
+  const { gl } = useThree();
+  useEffect(() => {
+    (window as any).xrRenderer = gl;
+  }, [gl]);
+  return null;
+}
 
 function useRoundedPlane(width = 0.4, height = 0.2, radius = 0.05) {
   return useMemo(() => {
@@ -226,17 +233,9 @@ export default function XRPlayground() {
   })))
 
   useEffect(() => {
-    const canvas = document.querySelector('canvas')
-    if (!canvas) return
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
-    renderer.xr.enabled = true
-
-    document.body.appendChild(VRButton.createButton(renderer));
-
-    renderer.setAnimationLoop(() => {
-    renderer.render(scene, camera);
-    });
+    (window as any).xrStore = store
   }, [])
+
   
   const handleUpload = () => {
     setPressedBtn('upload')
@@ -318,6 +317,7 @@ export default function XRPlayground() {
 
 
           <UploadedImage imageUrl={imageUrl} />
+          <DebugRenderState />
 
           <Suspense fallback={null}>
             {playground.meshes.map(m => (
