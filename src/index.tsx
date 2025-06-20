@@ -4,6 +4,8 @@ import './assets/css/utils.css';
 import './assets/css/vars/_fonts.css';  
 import './assets/css/vars/_theme.css';
 import '@xyflow/react/dist/style.css';
+import { Canvas } from '@react-three/fiber'
+import { XR } from '@react-three/xr'
 
 import './assets/css/form.css';
 import './assets/css/vars/_nav.css';
