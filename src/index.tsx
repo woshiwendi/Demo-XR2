@@ -4,8 +4,6 @@ import './assets/css/utils.css';
 import './assets/css/vars/_fonts.css';  
 import './assets/css/vars/_theme.css';
 import '@xyflow/react/dist/style.css';
-import { Canvas } from '@react-three/fiber'
-import { XR, createXRStore } from '@react-three/xr'
 
 import './assets/css/form.css';
 import './assets/css/vars/_nav.css';
@@ -27,41 +25,28 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 export const ThemeContext = React.createContext<themeContextType | null>(null);
-const store = createXRStore()
 
 function Sponj3d() {
-  const [theme, setTheme] = useState<themeType>(getTheme())
+    const [theme, setTheme] = useState<themeType>(getTheme())
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    setTheme(getTheme())
-  });
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={
-            <Canvas
-              shadows
-              gl={{ alpha: true }}
-              style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'transparent' }}
-            >
-              <XR store={store}>
-                <XRPlayground />
-              </XR>
-            </Canvas>
-          } />
-        </Routes>
-      </BrowserRouter>
-    </ThemeContext.Provider>
-  )
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        setTheme(getTheme())
+    });
+    
+    return (
+      <ThemeContext.Provider value={{theme, setTheme}}>
+        <BrowserRouter>
+          <Routes>
+            <Route path={"/"} element={<XRPlayground />}/>
+          </Routes>
+        </BrowserRouter>
+      </ThemeContext.Provider>
+    )
 }
-
-
 root.render(
-  // <React.StrictMode>
+  <React.StrictMode>
     <Sponj3d />
-  // </React.StrictMode>
+   </React.StrictMode>
 );
 
 reportWebVitals();
