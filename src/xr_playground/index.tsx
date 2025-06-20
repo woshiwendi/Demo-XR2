@@ -327,8 +327,8 @@ export default function XRPlayground() {
       >
 
         <XR store={store}>
-          <XROrigin position-y={-1.5}>
           <ambientLight intensity={1} />
+          <XROrigin position={position} />
           <directionalLight position={[5, 5, 5]} castShadow />
           <Environment preset="warehouse" />
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
@@ -377,7 +377,6 @@ export default function XRPlayground() {
 
           <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} far={2} />
           <OrbitControls />
-          </XROrigin>
         </XR>
       </Canvas>
     </>
