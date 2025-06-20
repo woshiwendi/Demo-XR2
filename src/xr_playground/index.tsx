@@ -16,8 +16,8 @@ import { useEffect } from 'react'
 
 const store = createXRStore({
   controller: {
-    left: { rayPointer: { rayModel: { color: 'black' }, enabled: true } },
-    right: { rayPointer: { rayModel: { color: 'black' }, enabled: true } },
+    left: { rayPointer: { rayModel: { color: 'black' } } },
+    right: { rayPointer: { rayModel: { color: 'black' } } },
   },
   enterGrantedSession: true,
   screenInput: true,
@@ -357,7 +357,6 @@ export default function XRButtonScene() {
 
 
           <UploadedImage imageUrl={imageUrl} />
-          <ControllerDebugLines />
 
           <Suspense fallback={null}>
             {playground.meshes.map(m => (
@@ -374,6 +373,7 @@ export default function XRButtonScene() {
           )}
 
           <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={1.5} far={2} />
+          <ControllerDebugLines />
           <OrbitControls />
         </XR>
       </Canvas>
