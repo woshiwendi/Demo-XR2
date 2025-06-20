@@ -304,16 +304,26 @@ export default function XRButtonScene() {
 
   return (
     <>
-      <button onClick={() => store.enterAR()} style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}>
+      <button
+        onClick={() => {
+          store.enterAR({
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['local-floor', 'dom-overlay'],
+            mode: 'immersive-ar',
+          })
+        }}
+        style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}
+      >
         {store.session ? 'Exit AR' : 'Enter AR'}
       </button>
       <input ref={uploadInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
       
       <Canvas
         shadows
-        gl={{ alpha: false }}
+        gl={{ alpha: true }}
         style={{ background: 'transparent' }}
       >
+
         <XR store={store}>
           <ambientLight intensity={1} />
           <directionalLight position={[5, 5, 5]} castShadow />
